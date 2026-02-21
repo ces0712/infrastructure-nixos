@@ -1,0 +1,36 @@
+.github
+# Build outputs
+nixos-pi.img
+result
+result-*
+
+# Git
+.git/
+
+# macOS
+.DS_Store
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Secrets - should never enter container build context
+*.pem
+*.key
+!*.pub
+rclone.conf
+*.dec
+
+# Logs
+*.log
+
+# Temporary
+tmp/
+*.tmp
+*.bak
+
+# Docker files themselves
+docker/
+podman-compose.yaml

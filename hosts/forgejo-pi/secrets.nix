@@ -1,0 +1,43 @@
+# SOPS Secrets Configuration
+# forgejo-server - Uruguay Staking Platform
+#
+# Maps encrypted secrets from secrets/secrets.yaml to filesystem paths
+# for use by NixOS services.
+{...}: {
+  secrets = {
+    # ----------------------------------------------------------
+    # Forgejo Secrets
+    # ----------------------------------------------------------
+    "forgejo/secret_key" = {
+      owner = "forgejo";
+      group = "forgejo";
+    };
+
+    "forgejo/internal_token" = {
+      owner = "forgejo";
+      group = "forgejo";
+    };
+
+    "tailscale/auth_key" = {
+      owner = "root";
+      group = "root";
+    };
+
+    "restic/borgbase_repo" = {
+      owner = "restic-backup";
+      group = "restic-backup";
+    };
+
+    "restic/borgbase_password" = {
+      owner = "restic-backup";
+      group = "restic-backup";
+    };
+
+    "rclone/pcloud_config" = {
+      owner = "restic-backup";
+      group = "restic-backup";
+      path = "/var/lib/restic-backup/.config/rclone/rclone.conf";
+      mode = "0600";
+    };
+  };
+}
