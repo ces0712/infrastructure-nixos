@@ -3,8 +3,8 @@
 #
 # Maps encrypted secrets from secrets/secrets.yaml to filesystem paths
 # for use by NixOS services.
-{...}: {
-  secrets = {
+_: {
+  sops.secrets = {
     # ----------------------------------------------------------
     # Forgejo Secrets
     # ----------------------------------------------------------

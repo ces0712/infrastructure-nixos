@@ -16,6 +16,7 @@
   };
 
   outputs = {
+    self,
     nixpkgs,
     secrets,
     sops-nix,
@@ -25,7 +26,6 @@
       system = "aarch64-linux";
       specialArgs = {inherit secrets;};
       modules = [
-        "${nixpkgs}/nixos/modules/installer/sd-card/sd-image-aarch64.nix"
         sops-nix.nixosModules.sops
         disko.nixosModules.disko
         ./hosts/forgejo-pi/options.nix

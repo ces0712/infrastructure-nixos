@@ -11,10 +11,12 @@
     ssdDevice = lib.mkOption {
       type = lib.types.str;
       default = "/dev/sda";
+      description = "SSD device for disko partitioning";
     };
     kernelPackages = lib.mkOption {
-      type = lib.types.raw;
-      default = pkgs: pkgs.linuxPackages_6_12;
+      type = lib.types.str;
+      default = "linuxPackages_6_12";
+      description = "Linux kernel packages variant (e.g., linuxPackages_6_12, linuxPackages_latest)";
     };
   };
 }

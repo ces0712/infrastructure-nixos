@@ -7,7 +7,7 @@
   # Kernel
   # ============================================================
   boot = {
-    kernelPackages = config.forgejo-pi.kernelPackages pkgs;
+    kernelPackages = pkgs.${config.forgejo-pi.kernelPackages};
 
     kernelParams = [
       "cma=64M"
@@ -18,6 +18,7 @@
     kernelModules = [
       "vc4"
       "i2c_dev"
+      "bcm2835_wdt"
     ];
 
     initrd.availableKernelModules = [
@@ -26,10 +27,6 @@
       "usb_storage"
       "vc4"
     ];
-
-    kernelExtraConfig = ''
-      BCM2835_WDT=y
-    '';
 
     # ============================================================
     # Boot loader
@@ -59,25 +56,15 @@
   # ============================================================
   hardware = {
     enableRedistributableFirmware = true;
-    graphics.enable = true; # VideoCore IV
-    raspberry-pi."4".apply-overlays-dtmerge.enable = true;
-    deviceTree = {
-      enable = true;
-      overlays = [
-        {
-          name = "vc4-kms-v3d";
-          dtboFile = "${pkgs.raspberrypifw}/share/raspberrypi/boot/overlays/vc4-kms-v3d.dtbo";
-        }
-      ];
+    graphics = {
+      enable = true; # VideoCore IV
     };
   };
 
   # ============================================================
   # Reset module - clean RPi4 reboot behavior
   # ============================================================
-  imports = [
-    "${pkgs.path}/nixos/modules/system/boot/reset-raspberrypi.nix"
-  ];
+  # imported via nixpkgs modules automatically
 
   # ============================================================
   # Swap - zram primary, swapfile fallback

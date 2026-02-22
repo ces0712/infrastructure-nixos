@@ -19,46 +19,34 @@
   users.groups.restic-backup = {};
   services.restic.backups.borgbase = {
     initialize = true;
-
     repositoryFile = config.sops.secrets."restic/borgbase_repo".path;
     passwordFile = config.sops.secrets."restic/borgbase_password".path;
-
     paths = [
       config.forgejo-pi.dbBackup
       "/var/lib/forgejo/repositories"
       "/var/lib/forgejo/custom"
     ];
-
     exclude = [
       "/var/lib/forgejo/log"
       "**/.cache"
       "**/tmp"
       "**/cache"
     ];
-
     backupPrepareCommand = ''
       ${pkgs.sqlite}/bin/sqlite3 ${config.forgejo-pi.dbPath} \
         ".backup ${config.forgejo-pi.dbBackup}"
       chmod 640 ${config.forgejo-pi.dbBackup}
     '';
-
     backupCleanupCommand = ''
       rm -f ${config.forgejo-pi.dbBackup}
     '';
-
-    # append-only: no pruneOpts from Pi
-    # retention managed from borgbase UI:
-    # daily=7, weekly=4, monthly=6
     pruneOpts = [];
-
     runCheck = true;
-
     timerConfig = {
       OnCalendar = "daily";
       RandomizedDelaySec = "1h";
       Persistent = true;
     };
-
     extraOptions = [
       "--verbose"
       "--one-file-system"
