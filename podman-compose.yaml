@@ -6,9 +6,9 @@ services:
     platform: linux/arm64
     container_name: nix-pi-builder
     volumes:
-      - .:/src:Z
       - nix-store-cache:/nix:Z
       - ${SECRETS_PATH}:/tmp/.ssh:ro
+      - ./output:/src/output
     cap_add:
       - SYS_ADMIN
     security_opt:

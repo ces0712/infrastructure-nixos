@@ -12,6 +12,7 @@ RUN echo "experimental-features = nix-command flakes" >> /etc/nix/nix.conf && \
         nixpkgs#nixos-install
 
 COPY docker/entrypoint.sh /entrypoint.sh
+COPY . /src
 RUN chmod +x /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]
