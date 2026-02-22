@@ -9,6 +9,8 @@ RUN echo "experimental-features = nix-command flakes" >> /etc/nix/nix.conf && \
         nixpkgs#gnumake \
         nixpkgs#parted \
         nixpkgs#util-linux \
-        nixpkgs#pv
+        nixpkgs#pv \
+        nixpkgs#nixos-install \
+        nixpkgs#git
 
 WORKDIR /src
