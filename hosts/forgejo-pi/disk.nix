@@ -1,4 +1,21 @@
-{config, ...}: {
+{
+  config,
+  lib,
+  ...
+}: {
+  # Enable SD image generation
+  sdImage = {
+    compressImage = false;
+    populateRootCommands = "";
+  };
+
+  fileSystems = lib.mkForce {
+    "/".device = "/dev/disk/by-partlabel/disk-ssd-root";
+    "/boot".device = "/dev/disk/by-partlabel/disk-ssd-boot";
+    "/nix".device = "/dev/disk/by-partlabel/disk-ssd-nix";
+    "/var/lib".device = "/dev/disk/by-partlabel/disk-ssd-data";
+  };
+
   disko.devices = {
     disk.ssd = {
       type = "disk";

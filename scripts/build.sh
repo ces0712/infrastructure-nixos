@@ -1,17 +1,16 @@
 #!/bin/sh
 set -e
 
-GREEN='\033[0;32m'
-NC='\033[0m'
 
-echo "${GREEN}📋 Building NixOS Image for Raspberry Pi 4...${NC}"
+echo "📋 Building NixOS Image for Raspberry Pi 4..."
 
-nix build .#nixosConfigurations.forgejo-pi.config.system.build.sdImage \
-  --extra-experimental-features "nix-command flakes" \
-  --print-out-paths
+OUTPUT=$(nix build .#nixosConfigurations.forgejo-pi.config.system.build.sdImage \
+  --print-out-paths)
 
-echo "${GREEN}💾 Copying image to project root...${NC}"
-cp -L result/*.img ./nixos-pi.img 2>/dev/null || cp -L result/sd-image/*.img ./nixos-pi.img
-rm -rf result
+echo "💾 Copying image..."
+mkdir -p output
+cp -L "$OUTPUT/sd-image"/*.img ./output/nixos-pi.img
+chmod 644 ./output/nixos-pi.img
 
-echo "${GREEN}✅ Image ready: nixos-pi.img${NC}"
+echo "✅ Image ready: output/nixos-pi.img"
+echo "   sudo dd if=output/nixos-pi.img of=/dev/diskX bs=1M status=progress"

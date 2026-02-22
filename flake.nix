@@ -1,6 +1,7 @@
 {
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-25.05";
+    alejandra.url = "github:kamadorueda/alejandra";
     sops-nix = {
       url = "github:Mic92/sops-nix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -18,16 +19,22 @@
   outputs = {
     self,
     nixpkgs,
+    alejandra,
     secrets,
     sops-nix,
     disko,
-  }: {
+  }: let
+    forSystem = nixpkgs.lib.genAttrs;
+  in {
+    formatter = forSystem ["aarch64-darwin" "aarch64-linux" "x86_64-darwin" "x86_64-linux"] (system: alejandra.packages.${system}.default);
+
     nixosConfigurations.forgejo-pi = nixpkgs.lib.nixosSystem {
       system = "aarch64-linux";
       specialArgs = {inherit secrets;};
       modules = [
         sops-nix.nixosModules.sops
         disko.nixosModules.disko
+        "${nixpkgs}/nixos/modules/installer/sd-card/sd-image-aarch64.nix"
         ./hosts/forgejo-pi/options.nix
         ./hosts/forgejo-pi/packages.nix
         ./hosts/forgejo-pi/default.nix

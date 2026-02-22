@@ -3,6 +3,7 @@
 nixos-pi.img
 result
 result-*
+output/
 
 # Git
 .git/
@@ -32,5 +33,4 @@ tmp/
 *.bak
 
 # Docker files themselves
-docker/
 podman-compose.yaml

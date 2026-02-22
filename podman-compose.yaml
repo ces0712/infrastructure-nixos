@@ -3,24 +3,20 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile
+    platform: linux/arm64
     container_name: nix-pi-builder
     volumes:
-      - .:/src
-      - nix-store-cache:/nix
-      - ${SSH_AUTH_SOCK}:/ssh-agent
-    devices:
-      - ${SSD_DEVICE:-/dev/sda}:${SSD_DEVICE:-/dev/sda}
+      - .:/src:Z
+      - nix-store-cache:/nix:Z
+      - ${SECRETS_PATH}:/tmp/.ssh:ro
     cap_add:
       - SYS_ADMIN
-      - MKNOD
     security_opt:
-      - no-new-privileges:true
+      - label=disable
     environment:
-      SSH_AUTH_SOCK: /ssh-agent
       PI_HOST: ${PI_HOST:-forgejo-pi.tail8f7f61.ts.net}
-      SSD_DEVICE: ${SSD_DEVICE:-/dev/sda}
-    command: ["sh", "-c", "make ${MAKE_TARGET:-build}"]
-    network_mode: host
+      SECRETS_PATH: ${SECRETS_PATH:-/tmp/keys}
+    command: ["sh", "-c", "./scripts/${MAKE_TARGET:-build}.sh"]
 
 volumes:
   nix-store-cache:

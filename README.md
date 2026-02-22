@@ -23,30 +23,43 @@ podman machine stop
 podman machine set --rootful=true  # or false
 podman machine start
 
-# 1. Build the builder container
+# 1. Build the builder container (runs CI checks first)
 make image-build
 
 # 2. Build NixOS image
 make build
 
-# 3. Partition SSD and install (WARNING: destroys data on target device)
-make partition SSD_DEVICE=/dev/sdX
+# 3. List available disks
+make disk-list
 
-# 4. Plug SSD into Pi and boot
+# 4. Flash image to SSD/SD card (WARNING: destroys data on target device)
+make flash SSD_DEVICE=/dev/diskX
 
-# 5. Deploy configuration
+# 5. Plug SSD into Pi and boot
+
+# 6. Deploy configuration
 make deploy PI_HOST=forgejo-pi.tail8f7f61.ts.net
+
+# 7. Restore data from backups (optional)
+make restore
 ```
 
 ### Make Targets
 
 | Target | Description |
 |--------|-------------|
-| `image-build` | Build the Podman builder container |
+| `image-build` | Build the Podman builder container (runs CI checks first) |
 | `build` | Build NixOS SD card image |
-| `partition` | Partition SSD and install NixOS |
+| `disk-list` | List available disks on macOS |
+| `flash` | Flash image to SSD/SD card |
 | `deploy` | Deploy configuration via nixos-rebuild |
 | `restore` | Restore Forgejo data from backups |
+| `fmt` | Format Nix files |
+| `fmt-check` | Check formatting without changes |
+| `check` | Run linting and validation |
+| `build-eval` | Evaluate NixOS configuration |
+| `build-dry` | Dry-run build showing changes |
+| `ci` | Run all CI checks locally |
 
 ## Configuration
 
