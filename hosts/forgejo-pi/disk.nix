@@ -10,54 +10,54 @@
           boot = {
             size = "512M";
             type = "EF00";
+            label = "disk-ssd-boot";
             content = {
               type = "filesystem";
               format = "vfat";
               mountpoint = "/boot";
               mountOptions = ["fmask=0022" "dmask=0022"];
-              extraArgs = ["-n BOOT"];
             };
           };
 
           root = {
             size = "40G";
+            label = "disk-ssd-root";
             content = {
               type = "filesystem";
               format = "ext4";
               mountpoint = "/";
               mountOptions = ["noatime" "nodiratime" "discard"];
-              extraArgs = ["-L NIXOS_ROOT"];
             };
           };
 
           nix = {
             size = "150G";
+            label = "disk-ssd-nix";
             content = {
               type = "filesystem";
               format = "ext4";
               mountpoint = "/nix";
               mountOptions = ["noatime" "nodiratime" "discard"];
-              extraArgs = ["-L NIXOS_NIX"];
             };
           };
 
           data = {
             size = "300G";
+            label = "disk-ssd-data";
             content = {
               type = "filesystem";
               format = "ext4";
               mountpoint = "/var/lib";
               mountOptions = ["noatime" "nodiratime" "discard" "nofail"];
-              extraArgs = ["-L NIXOS_DATA"];
             };
           };
 
           swap = {
             size = "2G";
+            label = "disk-ssd-swap";
             content = {
               type = "swap";
               randomEncryption = false;
-              extraArgs = ["-L NIXOS_SWAP"];
             };
           };
         };

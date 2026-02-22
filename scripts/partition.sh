@@ -18,11 +18,11 @@ nix run github:nix-community/disko -- \
   --flake .#forgejo-pi
 
 echo "${GREEN}📋 Mounting partitions...${NC}"
-mount /dev/disk/by-label/NIXOS_ROOT /mnt
+mount /dev/disk/by-partlabel/disk-ssd-root /mnt
 mkdir -p /mnt/boot /mnt/nix /mnt/var/lib
-mount /dev/disk/by-label/BOOT       /mnt/boot
-mount /dev/disk/by-label/NIXOS_NIX  /mnt/nix
-mount /dev/disk/by-label/NIXOS_DATA /mnt/var/lib
+mount /dev/disk/by-partlabel/disk-ssd-boot /mnt/boot
+mount /dev/disk/by-partlabel/disk-ssd-nix /mnt/nix
+mount /dev/disk/by-partlabel/disk-ssd-data /mnt/var/lib
 
 echo "${GREEN}🚀 Installing NixOS...${NC}"
 nixos-install \
@@ -33,9 +33,9 @@ nixos-install \
 
 echo "${GREEN}🔐 Injecting host key...${NC}"
 export SOPS_AGE_KEY=$(pass show sops/age-key)
-sops -d "$SECRETS_PATH/ssh-keys/forgejo-pi_key.enc" \
+sops -d "$SECRETS_PATH/ssh-hosts/forgejo-pi_key.enc" \
   > /mnt/etc/ssh/ssh_host_ed25519_key
-cp "$SECRETS_PATH/ssh-keys/forgejo-pi_key.pub" \
+cp "$SECRETS_PATH/ssh-hosts/forgejo-pi_key.pub" \
   /mnt/etc/ssh/ssh_host_ed25519_key.pub
 chmod 600 /mnt/etc/ssh/ssh_host_ed25519_key
 chmod 644 /mnt/etc/ssh/ssh_host_ed25519_key.pub
