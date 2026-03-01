@@ -1,10 +1,10 @@
 #!/bin/sh
 set -e
 
-SSD_DEVICE="${SSD_DEVICE:-/dev/disk4}"
+SSD_DEVICE="${SSD_DEVICE:-/dev/disk5}"
 
 if [ ! -f output/nixos-pi.img ]; then
-    echo "Error: output/nixos-pi.img not found. Run 'make build' first."
+    echo "Error: output/nixos-pi.img not found. Run 'just build' first."
     exit 1
 fi
 

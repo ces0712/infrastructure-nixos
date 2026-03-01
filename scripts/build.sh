@@ -4,7 +4,9 @@ set -e
 
 echo "📋 Building NixOS Image for Raspberry Pi 4..."
 
-OUTPUT=$(nix build .#nixosConfigurations.forgejo-pi.config.system.build.sdImage \
+IMAGE_CONFIG="${IMAGE_CONFIG:-forgejo-pi-image}"
+
+OUTPUT=$(nix build ".#nixosConfigurations.${IMAGE_CONFIG}.config.system.build.sdImage" \
   --print-out-paths)
 
 echo "💾 Copying image..."

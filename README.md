@@ -13,9 +13,10 @@ NixOS configuration for a Raspberry Pi 4 hosting [Forgejo](https://forgejo.org/)
 ### Prerequisites
 
 - [Podman](https://podman.io/) or Docker
+- [just](https://github.com/casey/just)
 - SSH access to the Pi
 
-### Build & Deploy
+### Build & Deploy (Phase 1: Bootable image)
 
 ```bash
 # 0. Start podman root mode 
@@ -24,40 +25,56 @@ podman machine set --rootful=true  # or false
 podman machine start
 
 # 1. Build the builder container (runs CI checks first)
-make image-build
+just image-build
 
 # 2. Build NixOS image
-make build
+just build
 
 # 3. List available disks
-make disk-list
+just disk-list
 
 # 4. Flash image to SSD/SD card (WARNING: destroys data on target device)
-make flash SSD_DEVICE=/dev/diskX
+just flash ssd_device=/dev/diskX
 
 # 5. Plug SSD into Pi and boot
 
 # 6. Deploy configuration
-make deploy PI_HOST=forgejo-pi.tail8f7f61.ts.net
+just deploy pi_host=forgejo-pi.tail8f7f61.ts.net
 
 # 7. Restore data from backups (optional)
-make restore
+just restore pi_host=forgejo-pi.tail8f7f61.ts.net
 ```
 
-### Make Targets
+### Optional Phase 2: Apply custom SSD partitions (Disko profile)
+
+After first successful boot/deploy, switch to the disko profile:
+
+```bash
+just deploy-disko pi_host=forgejo-pi.tail8f7f61.ts.net
+```
+
+This profile expects these labels from `hosts/forgejo-pi/disk.nix`:
+- `disk-ssd-boot`
+- `disk-ssd-root`
+- `disk-ssd-nix`
+- `disk-ssd-data`
+- `disk-ssd-swap`
+
+### Just Targets
 
 | Target | Description |
 |--------|-------------|
 | `image-build` | Build the Podman builder container (runs CI checks first) |
-| `build` | Build NixOS SD card image |
+| `build` | Build NixOS Raspberry Pi image (`forgejo-pi-image`) |
 | `disk-list` | List available disks on macOS |
 | `flash` | Flash image to SSD/SD card |
-| `deploy` | Deploy configuration via nixos-rebuild |
+| `deploy` | Deploy runtime configuration (`forgejo-pi`) |
+| `deploy-disko` | Deploy disko partition profile (`forgejo-pi-disko`) |
 | `restore` | Restore Forgejo data from backups |
 | `fmt` | Format Nix files |
 | `fmt-check` | Check formatting without changes |
 | `check` | Run linting and validation |
-| `build-eval` | Evaluate NixOS configuration |
+| `build-eval` | Evaluate runtime and image configs |
 | `build-dry` | Dry-run build showing changes |
 | `ci` | Run all CI checks locally |
 
@@ -94,6 +111,18 @@ database)
 - **Rclone → pCloud**: Weekly LFS object backups
 
 ## Troubleshooting
+
+### Black screen / stage-1 boot failure after flashing
+
+If HDMI stays black and stage-1 fails to mount root, ensure you built the
+dedicated image profile:
+
+```bash
+just build
+```
+
+`just build` now uses `forgejo-pi-image`, which avoids forcing disko partition
+labels during image boot.
 
 ### View logs
 
