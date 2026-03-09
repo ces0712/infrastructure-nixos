@@ -19,29 +19,33 @@ NixOS configuration for a Raspberry Pi 4 hosting [Forgejo](https://forgejo.org/)
 ### Recommended Workflow (Flash Both, Then Prepare SSD From SD)
 
 ```bash
-# 1. Build the shared bootstrap image once
+# 1. Build the builder container when setting up from scratch or after
+#    changing container/build dependencies
+just image-build
+
+# 2. Build the shared bootstrap image
 just build
 
-# 2. Flash the same image to the SD card and the SSD from your computer
+# 3. Flash the same image to the SD card and the SSD from your computer
 just flash device=/dev/diskSD
 just flash device=/dev/diskSSD
 
-# 3. Boot the Pi from the SD card only
-# 4. After the SD system is up, connect the flashed SSD
-# 5. Prepare the SSD in place: keep partitions 1-2 from the flashed image,
+# 4. Boot the Pi from the SD card only
+# 5. After the SD system is up, connect the flashed SSD
+# 6. Prepare the SSD in place: keep partitions 1-2 from the flashed image,
 #    enlarge root, create the data partition, then power off
 PI_HOST=forgejo-pi.tail8f7f61.ts.net just bootstrap
 
-# 6. Remove the SD card and boot from the SSD
+# 7. Remove the SD card and boot from the SSD
 PI_HOST=forgejo-pi.tail8f7f61.ts.net just boot-source
 
-# 7. Switch the SSD system to the full Forgejo runtime profile
+# 8. Switch the SSD system to the full Forgejo runtime profile
 PI_HOST=forgejo-pi.tail8f7f61.ts.net just deploy
 
-# 8. Validate that the SSD runtime is stable
+# 9. Validate that the SSD runtime is stable
 PI_HOST=forgejo-pi.tail8f7f61.ts.net just validate
 
-# 9. Restore data from backups (optional)
+# 10. Restore data from backups (optional)
 PI_HOST=forgejo-pi.tail8f7f61.ts.net just restore
 ```
 
@@ -123,7 +127,7 @@ ROOT_SIZE_GIB=160 \
 just bootstrap
 ```
 
-### Local flash commands
+### Local build and flash commands
 
 ```bash
 # 0. Start podman root mode
@@ -131,7 +135,7 @@ podman machine stop
 podman machine set --rootful=true  # or false
 podman machine start
 
-# 1. Build the builder container (runs CI checks first)
+# 1. Build or refresh the builder container (runs CI checks first)
 just image-build
 
 # 2. Build the shared bootstrap image
@@ -148,6 +152,10 @@ just flash device=/dev/diskSSD
 `just flash` is intentionally a thin local wrapper around `diskutil` and `dd`.
 It does not change the supported architecture; it only automates the host-side
 media write step.
+
+`just image-build` is only needed when setting up from scratch or after
+changing the builder container inputs. The normal day-to-day loop is usually
+`just build`.
 
 The SSD runtime layout expects these labels:
 - `FIRMWARE` on partition 1 from the flashed image
