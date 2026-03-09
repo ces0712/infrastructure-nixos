@@ -7,7 +7,6 @@ GOLDEN_IMAGE := env_var_or_default("GOLDEN_IMAGE", "")
 BOOTSTRAP_USER := env_var_or_default("BOOTSTRAP_USER", "root")
 IDENTITY_FILE := env_var_or_default("IDENTITY_FILE", "")
 DEPLOY_USER := env_var_or_default("DEPLOY_USER", "nixos")
-DEPLOY_PROFILE := env_var_or_default("DEPLOY_PROFILE", "forgejo-pi")
 SOPS_AGE_KEY_FILE := env_var_or_default("SOPS_AGE_KEY_FILE", "")
 SOPS_AGE_KEY := env_var_or_default("SOPS_AGE_KEY", "")
 SOPS_AGE_KEY_PASS_ENTRY := env_var_or_default("SOPS_AGE_KEY_PASS_ENTRY", "sops/age-key")
@@ -28,7 +27,7 @@ help:
   @echo "  just boot-source  -> shows whether the Pi is booted from SD or SSD"
   @echo "  just validate     -> verifies the SSD runtime is healthy"
   @echo "  just bootstrap    -> from SD boot, resize flashed SSD root and create the data partition"
-  @echo "  just deploy       -> deploy selected runtime profile to Pi (remote build)"
+  @echo "  just deploy       -> deploy the Forgejo runtime to Pi (remote build)"
   @echo "  just restore      -> restores forgejo data from backups"
   @echo ""
   @echo "Recovery / optional:"
@@ -50,7 +49,6 @@ help:
   @echo "  PI_HOST=<host>       -> default: forgejo-pi.tail8f7f61.ts.net"
   @echo "  BOOTSTRAP_USER=<user> -> default: root"
   @echo "  DEPLOY_USER=<user>    -> default: nixos"
-  @echo "  DEPLOY_PROFILE=<name> -> default: forgejo-pi"
   @echo "  IDENTITY_FILE=<path>  -> optional SSH key for bootstrap/deploy"
   @echo "  SOPS_AGE_KEY_FILE=<path> -> optional age key file for deploy"
   @echo "  SOPS_AGE_KEY_PASS_ENTRY=<entry> -> default: sops/age-key"
@@ -81,7 +79,7 @@ golden-restore:
   GOLDEN_DEVICE={{GOLDEN_DEVICE}} GOLDEN_IMAGE={{GOLDEN_IMAGE}} ./scripts/golden-restore.sh
 
 deploy:
-  PI_HOST={{PI_HOST}} DEPLOY_USER={{DEPLOY_USER}} DEPLOY_PROFILE={{DEPLOY_PROFILE}} IDENTITY_FILE={{IDENTITY_FILE}} SOPS_AGE_KEY_FILE={{SOPS_AGE_KEY_FILE}} SOPS_AGE_KEY_PASS_ENTRY={{SOPS_AGE_KEY_PASS_ENTRY}} DEPLOY_MODE={{DEPLOY_MODE}} DEPLOY_REBOOT={{DEPLOY_REBOOT}} ./scripts/deploy.sh
+  PI_HOST={{PI_HOST}} DEPLOY_USER={{DEPLOY_USER}} IDENTITY_FILE={{IDENTITY_FILE}} SOPS_AGE_KEY_FILE={{SOPS_AGE_KEY_FILE}} SOPS_AGE_KEY_PASS_ENTRY={{SOPS_AGE_KEY_PASS_ENTRY}} DEPLOY_MODE={{DEPLOY_MODE}} DEPLOY_REBOOT={{DEPLOY_REBOOT}} ./scripts/deploy.sh
 
 bootstrap:
   PI_HOST={{PI_HOST}} BOOTSTRAP_USER={{BOOTSTRAP_USER}} IDENTITY_FILE={{IDENTITY_FILE}} SSD_DEVICE={{REMOTE_SSD_DEVICE}} ROOT_SIZE_GIB={{ROOT_SIZE_GIB}} BOOTSTRAP_POWEROFF={{BOOTSTRAP_POWEROFF}} ./scripts/bootstrap.sh

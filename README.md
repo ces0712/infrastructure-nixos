@@ -155,7 +155,7 @@ The SSD runtime layout expects these labels:
 | `flash` | Thin local wrapper around `diskutil` + `dd` |
 | `boot-source` | Show whether the Pi is currently running from SD or SSD |
 | `validate` | Verify the SSD runtime profile, mounts, and core services |
-| `deploy` | Deploy runtime configuration (`forgejo-pi` by default) |
+| `deploy` | Deploy the Forgejo runtime configuration |
 | `restore` | Restore Forgejo data from backups |
 | `fmt` | Format Nix files |
 | `fmt-check` | Check formatting without changes |

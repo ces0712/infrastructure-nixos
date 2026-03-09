@@ -3,7 +3,6 @@ set -eu
 
 PI_HOST="${PI_HOST:?PI_HOST is required}"
 DEPLOY_USER="${DEPLOY_USER:-nixos}"
-DEPLOY_PROFILE="${DEPLOY_PROFILE:-forgejo-pi}"
 IDENTITY_FILE="${IDENTITY_FILE:-}"
 SOPS_AGE_KEY_FILE="${SOPS_AGE_KEY_FILE:-}"
 SOPS_AGE_KEY="${SOPS_AGE_KEY:-}"
@@ -114,7 +113,7 @@ run_rebuild() {
   ACTION="$1"
   export NIX_SSHOPTS="${SSH_OPTS}"
   nix run nixpkgs#nixos-rebuild -- \
-    "${ACTION}" --flake ".#${DEPLOY_PROFILE}" \
+    "${ACTION}" --flake ".#forgejo-pi" \
     --target-host "${TARGET}" \
     --build-host "${TARGET}" \
     ${SUDO_FLAG}
