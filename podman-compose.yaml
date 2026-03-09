@@ -16,6 +16,9 @@ services:
     environment:
       PI_HOST: ${PI_HOST:-forgejo-pi.tail8f7f61.ts.net}
       SECRETS_PATH: ${SECRETS_PATH:-/tmp/keys}
+      IMAGE_CONFIG: ${IMAGE_CONFIG:-forgejo-pi-image}
+      BUILD_ATTR: ${BUILD_ATTR:-}
+      OUTPUT_IMAGE: ${OUTPUT_IMAGE:-output/nixos-pi.img}
     command: ["sh", "-eu", "./scripts/build-image.sh"]
 
 volumes:

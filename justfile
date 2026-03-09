@@ -2,6 +2,7 @@ set shell := ["sh", "-cu"]
 
 PI_HOST := env_var_or_default("PI_HOST", "forgejo-pi.tail8f7f61.ts.net")
 FLASH_DEVICE := env_var_or_default("SSD_DEVICE", "/dev/disk4")
+FLASH_IMAGE := env_var_or_default("FLASH_IMAGE", "output/nixos-pi.img")
 GOLDEN_DEVICE := env_var_or_default("GOLDEN_DEVICE", "/dev/disk4")
 GOLDEN_IMAGE := env_var_or_default("GOLDEN_IMAGE", "")
 BOOTSTRAP_USER := env_var_or_default("BOOTSTRAP_USER", "root")
@@ -45,7 +46,7 @@ help:
   @echo ""
   @echo "Variables:"
   @echo "  device=<device>      -> target disk for 'just flash' or golden image commands"
-  @echo "  image=<path>         -> optional for golden-create, required for golden-restore"
+  @echo "  image=<path>         -> image path for 'just flash'; optional for golden-create, required for golden-restore"
   @echo "  GOLDEN_DEVICE=<device> -> fallback default for golden image commands"
   @echo "  GOLDEN_IMAGE=<path> -> fallback default for golden image commands"
   @echo "  PI_HOST=<host>       -> default: forgejo-pi.tail8f7f61.ts.net"
@@ -74,8 +75,8 @@ build-repart-experimental:
 disk-list:
   diskutil list
 
-flash device=FLASH_DEVICE:
-  DEVICE={{device}} ./scripts/flash.sh
+flash device=FLASH_DEVICE image=FLASH_IMAGE:
+  DEVICE={{device}} IMAGE_PATH={{image}} ./scripts/flash.sh
 
 golden-create device=GOLDEN_DEVICE image=GOLDEN_IMAGE:
   DEVICE={{device}} GOLDEN_IMAGE={{image}} ./scripts/golden-create.sh

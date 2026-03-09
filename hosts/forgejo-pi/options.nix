@@ -24,6 +24,16 @@
         default = "1G";
       };
     };
+    bootstrap = {
+      rootSizeGiB = lib.mkOption {
+        type = lib.types.int;
+        default = 200;
+      };
+      dataFsType = lib.mkOption {
+        type = lib.types.enum ["ext4"];
+        default = "ext4";
+      };
+    };
     forgejoStateDir = lib.mkOption {
       type = lib.types.str;
       default = "/srv/forgejo";

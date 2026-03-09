@@ -33,7 +33,7 @@ just flash device=/dev/diskSSD
 # 4. Boot the Pi from the SD card only
 # 5. After the SD system is up, connect the flashed SSD
 # 6. Prepare the SSD in place: keep partitions 1-2 from the flashed image,
-#    enlarge root, create the data partition, then power off
+#    apply the declarative SSD layout plan, and power off
 PI_HOST=forgejo-pi.tail8f7f61.ts.net just bootstrap
 
 # 7. Remove the SD card and boot from the SSD
@@ -126,9 +126,15 @@ just deploy
 
 Then verify `/boot/extlinux/extlinux.conf` on the Pi before rebooting manually.
 
-`just bootstrap` assumes the remote SSD is `/dev/sda` and expands the flashed
-root partition to `200GiB` before creating the `NIXOS_DATA` partition. Override
-those defaults if needed:
+`just bootstrap` assumes the remote SSD is `/dev/sda` and applies the
+declarative SSD layout defaults from Nix:
+
+- keep `FIRMWARE` as partition 1
+- keep and grow `NIXOS_SD` as partition 2
+- create `NIXOS_DATA` as partition 3
+- default root target size: `200GiB`
+
+Override the remote disk or root target size if needed:
 
 ```bash
 PI_HOST=forgejo-pi.tail8f7f61.ts.net \
