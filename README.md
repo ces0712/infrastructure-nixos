@@ -49,11 +49,8 @@ This is the only supported install path. The SSD keeps the flashed, known-good
 Pi boot partition from the image. Bootstrap no longer rebuilds the SSD boot
 partition and no longer uses `nixos-anywhere`.
 
-Important: the deployed SSD targets keep the same `sd-image` machine model as
-the flashed bootstrap image. Only the service layer changes between:
-
-- `forgejo-pi-core` - boot-safe intermediate runtime
-- `forgejo-pi` - full Forgejo runtime
+Important: the deployed SSD target keeps the same `sd-image` machine model as
+the flashed bootstrap image.
 
 The shared image reserves a `512MiB` `FIRMWARE` partition for Raspberry Pi
 firmware files. On this `sd-image` layout, runtime boot entries live on the
@@ -92,20 +89,6 @@ and if the Pi drops off the system bus during activation it falls back to
 
 After reboot, deploy prints a reconnect message and exits. Reconnect manually to
 verify the new generation.
-
-Recovery path if the full runtime still trips early boot:
-
-```bash
-PI_HOST=forgejo-pi.tail8f7f61.ts.net \
-IDENTITY_FILE=~/.ssh/id_ed25519 \
-DEPLOY_MODE=boot \
-DEPLOY_REBOOT=0 \
-just deploy-core
-```
-
-`forgejo-pi-core` keeps the same `sd-image` base and SSD/runtime layout, but
-does not yet layer Forgejo, Tailscale, backups, or SOPS-managed runtime
-services.
 
 To stage a `boot` deployment without rebooting immediately, use:
 
@@ -173,7 +156,6 @@ The SSD runtime layout expects these labels:
 | `boot-source` | Show whether the Pi is currently running from SD or SSD |
 | `validate` | Verify the SSD runtime profile, mounts, and core services |
 | `deploy` | Deploy runtime configuration (`forgejo-pi` by default) |
-| `deploy-core` | Recovery path: deploy the boot-safe intermediate runtime profile (`forgejo-pi-core`) |
 | `restore` | Restore Forgejo data from backups |
 | `fmt` | Format Nix files |
 | `fmt-check` | Check formatting without changes |

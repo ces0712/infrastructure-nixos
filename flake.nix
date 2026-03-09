@@ -40,14 +40,6 @@
         ./hosts/forgejo-pi/bootstrap-networking.nix
         ./hosts/forgejo-pi/bootstrap-ssh.nix
       ];
-    coreModules =
-      baseModules
-      ++ [
-        ./hosts/forgejo-pi/profile-core.nix
-        ./hosts/forgejo-pi/default.nix
-        ./hosts/forgejo-pi/bootstrap-networking.nix
-        ./hosts/forgejo-pi/bootstrap-ssh.nix
-      ];
     runtimeModules =
       baseModules
       ++ [
@@ -71,22 +63,6 @@
       };
       modules =
         runtimeModules
-        ++ [
-          "${nixpkgs}/nixos/modules/installer/sd-card/sd-image-aarch64.nix"
-          ./hosts/forgejo-pi/image.nix
-          ./hosts/forgejo-pi/disk.nix
-        ];
-    };
-
-    # Boot-safe SSD runtime used to verify the deployed host before layering
-    # Forgejo, Tailscale, backups, and SOPS-managed services on top.
-    nixosConfigurations.forgejo-pi-core = nixpkgs.lib.nixosSystem {
-      system = "aarch64-linux";
-      specialArgs = {
-        inherit secrets raspberrypi-firmware;
-      };
-      modules =
-        coreModules
         ++ [
           "${nixpkgs}/nixos/modules/installer/sd-card/sd-image-aarch64.nix"
           ./hosts/forgejo-pi/image.nix

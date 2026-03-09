@@ -36,7 +36,6 @@ Out of scope:
 The current stable system depends on the same `sd-image` machine model for:
 
 - `forgejo-pi-image`
-- `forgejo-pi-core`
 - `forgejo-pi`
 
 That model is what made the Raspberry Pi boot path stable again. Introducing

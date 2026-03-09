@@ -32,7 +32,6 @@ help:
   @echo "  just restore      -> restores forgejo data from backups"
   @echo ""
   @echo "Recovery / optional:"
-  @echo "  just deploy-core  -> deploy the boot-safe core runtime profile"
   @echo "  just golden-create -> capture compressed golden SSD image"
   @echo "  just golden-restore -> restore golden image back to SSD"
   @echo ""
@@ -84,9 +83,6 @@ golden-restore:
 deploy:
   PI_HOST={{PI_HOST}} DEPLOY_USER={{DEPLOY_USER}} DEPLOY_PROFILE={{DEPLOY_PROFILE}} IDENTITY_FILE={{IDENTITY_FILE}} SOPS_AGE_KEY_FILE={{SOPS_AGE_KEY_FILE}} SOPS_AGE_KEY_PASS_ENTRY={{SOPS_AGE_KEY_PASS_ENTRY}} DEPLOY_MODE={{DEPLOY_MODE}} DEPLOY_REBOOT={{DEPLOY_REBOOT}} ./scripts/deploy.sh
 
-deploy-core:
-  PI_HOST={{PI_HOST}} DEPLOY_USER={{DEPLOY_USER}} DEPLOY_PROFILE=forgejo-pi-core IDENTITY_FILE={{IDENTITY_FILE}} DEPLOY_MODE={{DEPLOY_MODE}} DEPLOY_REBOOT={{DEPLOY_REBOOT}} ./scripts/deploy.sh
-
 bootstrap:
   PI_HOST={{PI_HOST}} BOOTSTRAP_USER={{BOOTSTRAP_USER}} IDENTITY_FILE={{IDENTITY_FILE}} SSD_DEVICE={{REMOTE_SSD_DEVICE}} ROOT_SIZE_GIB={{ROOT_SIZE_GIB}} BOOTSTRAP_POWEROFF={{BOOTSTRAP_POWEROFF}} ./scripts/bootstrap.sh
   @echo "SSD prepared. Remove the SD card, boot from SSD, verify with 'just boot-source', then run 'just deploy'."
@@ -124,8 +120,6 @@ check:
 build-eval:
   @echo "Evaluating host configuration (forgejo-pi)..."
   @nix eval '.#nixosConfigurations.forgejo-pi.config.system.build.toplevel' --raw > /dev/null
-  @echo "Evaluating core host configuration (forgejo-pi-core)..."
-  @nix eval '.#nixosConfigurations.forgejo-pi-core.config.system.build.toplevel' --raw > /dev/null
   @echo "Evaluating image configuration (forgejo-pi-image)..."
   @nix eval '.#nixosConfigurations.forgejo-pi-image.config.system.build.sdImage' --raw > /dev/null
   @echo "Configurations are valid"
