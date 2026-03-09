@@ -132,19 +132,23 @@ fi
 ' || true
 }
 
+handle_boot_reboot() {
+  if [ "${DEPLOY_REBOOT}" = "1" ]; then
+    reboot_target
+    echo "Reboot triggered. Reconnect to ${PI_HOST} manually to verify the new generation."
+  else
+    echo "Skipping reboot because DEPLOY_REBOOT=${DEPLOY_REBOOT}."
+    echo "Verify /boot before rebooting manually."
+  fi
+}
+
 case "${DEPLOY_MODE}" in
   switch)
     run_rebuild switch
     ;;
   boot)
     run_rebuild boot
-    if [ "${DEPLOY_REBOOT}" = "1" ]; then
-      reboot_target
-      echo "Reboot triggered. Reconnect to ${PI_HOST} manually to verify the new generation."
-    else
-      echo "Skipping reboot because DEPLOY_REBOOT=${DEPLOY_REBOOT}."
-      echo "Verify /boot before rebooting manually."
-    fi
+    handle_boot_reboot
     ;;
   auto)
     if run_rebuild switch; then
@@ -152,13 +156,7 @@ case "${DEPLOY_MODE}" in
     else
       echo "Live switch failed; falling back to boot + reboot." >&2
       run_rebuild boot
-      if [ "${DEPLOY_REBOOT}" = "1" ]; then
-        reboot_target
-        echo "Reboot triggered. Reconnect to ${PI_HOST} manually to verify the new generation."
-      else
-        echo "Skipping reboot because DEPLOY_REBOOT=${DEPLOY_REBOOT}." >&2
-        echo "Verify /boot before rebooting manually." >&2
-      fi
+      handle_boot_reboot
     fi
     ;;
   *)

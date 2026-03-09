@@ -11,10 +11,10 @@ BOOTSTRAP_POWEROFF="${BOOTSTRAP_POWEROFF:-1}"
 TARGET="${BOOTSTRAP_USER}@${PI_HOST}"
 
 echo "Preparing flashed SSD ${SSD_DEVICE} on ${TARGET}..."
-echo "Expected layout before bootstrap:"
-echo "  ${SSD_DEVICE}1 -> flashed FIRMWARE partition"
-echo "  ${SSD_DEVICE}2 -> flashed NIXOS_SD root partition"
-echo "Bootstrap will resize partition 2 and create:"
+echo "Bootstrap expects:"
+echo "  ${SSD_DEVICE}1 -> flashed FIRMWARE"
+echo "  ${SSD_DEVICE}2 -> flashed NIXOS_SD"
+echo "Bootstrap will keep 1-2, grow 2, and recreate:"
 echo "  ${SSD_DEVICE}3 -> NIXOS_DATA"
 
 ssh_opts="-o StrictHostKeyChecking=accept-new -o PubkeyAuthentication=yes -o ConnectTimeout=10"
@@ -49,6 +49,7 @@ esac
 
 for part in "${boot_part}" "${root_part}" "${data_part}"; do
   if findmnt -rn "${part}" >/dev/null 2>&1; then
+    echo "Unmounting ${part} ..."
     ${SUDO} umount "${part}"
   fi
 done

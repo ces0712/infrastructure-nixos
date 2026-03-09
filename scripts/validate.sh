@@ -2,10 +2,10 @@
 set -eu
 
 PI_HOST="${PI_HOST:?PI_HOST is required}"
-VALIDATE_USER="${VALIDATE_USER:-${DEPLOY_USER:-nixos}}"
+DEPLOY_USER="${DEPLOY_USER:-nixos}"
 IDENTITY_FILE="${IDENTITY_FILE:-}"
 
-TARGET="${VALIDATE_USER}@${PI_HOST}"
+TARGET="${DEPLOY_USER}@${PI_HOST}"
 SSH_OPTS="-o StrictHostKeyChecking=accept-new -o PubkeyAuthentication=yes -o ConnectTimeout=10"
 
 if [ -n "${IDENTITY_FILE}" ]; then
