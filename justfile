@@ -70,7 +70,7 @@ disk-list:
   diskutil list
 
 flash device=SSD_DEVICE:
-  SSD_DEVICE={{device}} ./scripts/flash.sh
+  DEVICE={{device}} ./scripts/flash.sh
 
 golden-create:
   GOLDEN_DEVICE={{GOLDEN_DEVICE}} GOLDEN_IMAGE={{GOLDEN_IMAGE}} ./scripts/golden-create.sh
