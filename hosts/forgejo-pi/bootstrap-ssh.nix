@@ -9,5 +9,10 @@
     (builtins.readFile "${secrets}/ssh-hosts/admin.pub")
   ];
 
+  security.sudo = {
+    enable = true;
+    wheelNeedsPassword = false;
+  };
+
   services.openssh.settings.PermitRootLogin = lib.mkForce "prohibit-password";
 }

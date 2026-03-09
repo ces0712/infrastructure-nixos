@@ -37,7 +37,6 @@
     bootstrapModules =
       baseModules
       ++ [
-        ./hosts/forgejo-pi/bootstrap-base.nix
         ./hosts/forgejo-pi/bootstrap-networking.nix
         ./hosts/forgejo-pi/bootstrap-ssh.nix
       ];
