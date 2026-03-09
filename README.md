@@ -153,6 +153,13 @@ just flash device=/dev/diskSSD
 It does not change the supported architecture; it only automates the host-side
 media write step.
 
+The optional golden image helpers use the same argument style:
+
+```bash
+just golden-create device=/dev/diskSSD image=output/golden.img.zst
+just golden-restore device=/dev/diskSSD image=output/golden.img.zst
+```
+
 `just image-build` is only needed when setting up from scratch or after
 changing the builder container inputs. The normal day-to-day loop is usually
 `just build`.

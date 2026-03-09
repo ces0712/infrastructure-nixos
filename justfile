@@ -1,7 +1,7 @@
 set shell := ["sh", "-cu"]
 
 PI_HOST := env_var_or_default("PI_HOST", "forgejo-pi.tail8f7f61.ts.net")
-SSD_DEVICE := env_var_or_default("SSD_DEVICE", "/dev/disk4")
+FLASH_DEVICE := env_var_or_default("SSD_DEVICE", "/dev/disk4")
 GOLDEN_DEVICE := env_var_or_default("GOLDEN_DEVICE", "/dev/disk4")
 GOLDEN_IMAGE := env_var_or_default("GOLDEN_IMAGE", "")
 BOOTSTRAP_USER := env_var_or_default("BOOTSTRAP_USER", "root")
@@ -43,9 +43,10 @@ help:
   @echo "  just ci           -> run all checks locally"
   @echo ""
   @echo "Variables:"
-  @echo "  device=<device>      -> target disk for 'just flash' (defaults to /dev/disk4)"
-  @echo "  GOLDEN_DEVICE=<device> -> default: /dev/disk4"
-  @echo "  GOLDEN_IMAGE=<path> -> required for restore, optional for create"
+  @echo "  device=<device>      -> target disk for 'just flash' or golden image commands"
+  @echo "  image=<path>         -> optional for golden-create, required for golden-restore"
+  @echo "  GOLDEN_DEVICE=<device> -> fallback default for golden image commands"
+  @echo "  GOLDEN_IMAGE=<path> -> fallback default for golden image commands"
   @echo "  PI_HOST=<host>       -> default: forgejo-pi.tail8f7f61.ts.net"
   @echo "  BOOTSTRAP_USER=<user> -> default: root"
   @echo "  DEPLOY_USER=<user>    -> default: nixos"
@@ -69,14 +70,14 @@ build:
 disk-list:
   diskutil list
 
-flash device=SSD_DEVICE:
+flash device=FLASH_DEVICE:
   DEVICE={{device}} ./scripts/flash.sh
 
-golden-create:
-  DEVICE={{GOLDEN_DEVICE}} GOLDEN_IMAGE={{GOLDEN_IMAGE}} ./scripts/golden-create.sh
+golden-create device=GOLDEN_DEVICE image=GOLDEN_IMAGE:
+  DEVICE={{device}} GOLDEN_IMAGE={{image}} ./scripts/golden-create.sh
 
-golden-restore:
-  DEVICE={{GOLDEN_DEVICE}} GOLDEN_IMAGE={{GOLDEN_IMAGE}} ./scripts/golden-restore.sh
+golden-restore device=GOLDEN_DEVICE image=GOLDEN_IMAGE:
+  DEVICE={{device}} GOLDEN_IMAGE={{image}} ./scripts/golden-restore.sh
 
 deploy:
   PI_HOST={{PI_HOST}} DEPLOY_USER={{DEPLOY_USER}} IDENTITY_FILE={{IDENTITY_FILE}} SOPS_AGE_KEY_FILE={{SOPS_AGE_KEY_FILE}} SOPS_AGE_KEY_PASS_ENTRY={{SOPS_AGE_KEY_PASS_ENTRY}} DEPLOY_MODE={{DEPLOY_MODE}} DEPLOY_REBOOT={{DEPLOY_REBOOT}} ./scripts/deploy.sh
