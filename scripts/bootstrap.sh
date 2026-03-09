@@ -1,6 +1,8 @@
 #!/bin/sh
 set -eu
 
+. "$(dirname "$0")/libssh.sh"
+
 PI_HOST="${PI_HOST:?PI_HOST is required}"
 BOOTSTRAP_USER="${BOOTSTRAP_USER:-root}"
 IDENTITY_FILE="${IDENTITY_FILE:-}"
@@ -8,7 +10,7 @@ SSD_DEVICE="${SSD_DEVICE:-/dev/sda}"
 ROOT_SIZE_GIB="${ROOT_SIZE_GIB:-200}"
 BOOTSTRAP_POWEROFF="${BOOTSTRAP_POWEROFF:-1}"
 
-TARGET="${BOOTSTRAP_USER}@${PI_HOST}"
+TARGET="$(target_host "${BOOTSTRAP_USER}" "${PI_HOST}")"
 
 echo "Preparing flashed SSD ${SSD_DEVICE} on ${TARGET}..."
 echo "Bootstrap expects:"
@@ -17,10 +19,7 @@ echo "  ${SSD_DEVICE}2 -> flashed NIXOS_SD"
 echo "Bootstrap will keep 1-2, grow 2, and recreate:"
 echo "  ${SSD_DEVICE}3 -> NIXOS_DATA"
 
-ssh_opts="-o StrictHostKeyChecking=accept-new -o PubkeyAuthentication=yes -o ConnectTimeout=10"
-if [ -n "${IDENTITY_FILE}" ]; then
-  ssh_opts="${ssh_opts} -o IdentityFile=${IDENTITY_FILE} -o IdentitiesOnly=yes"
-fi
+ssh_opts="$(standard_ssh_opts "${IDENTITY_FILE}")"
 
 ssh ${ssh_opts} "${TARGET}" \
   SSD_DEVICE="${SSD_DEVICE}" ROOT_SIZE_GIB="${ROOT_SIZE_GIB}" BOOTSTRAP_POWEROFF="${BOOTSTRAP_POWEROFF}" \

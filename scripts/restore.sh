@@ -1,6 +1,8 @@
 #!/bin/sh
 set -eu
 
+. "$(dirname "$0")/libssh.sh"
+
 PI_HOST="${PI_HOST:-forgejo-pi.tail8f7f61.ts.net}"
 DEPLOY_USER="${DEPLOY_USER:-nixos}"
 IDENTITY_FILE="${IDENTITY_FILE:-}"
@@ -8,12 +10,8 @@ DB_PATH="${DB_PATH:-/srv/forgejo/data/forgejo.db}"
 DB_BACKUP_PATH="${DB_BACKUP_PATH:-/srv/backup/forgejo/forgejo-backup.db}"
 RCLONE_CONFIG_PATH="${RCLONE_CONFIG_PATH:-/srv/restic-backup/.config/rclone/rclone.conf}"
 
-SSH_OPTS="-o StrictHostKeyChecking=accept-new -o PubkeyAuthentication=yes -o ConnectTimeout=10 -o IdentitiesOnly=yes"
-if [ -n "${IDENTITY_FILE}" ]; then
-  SSH_OPTS="${SSH_OPTS} -i ${IDENTITY_FILE}"
-fi
-
-TARGET="${DEPLOY_USER}@${PI_HOST}"
+SSH_OPTS="$(standard_ssh_opts "${IDENTITY_FILE}")"
+TARGET="$(target_host "${DEPLOY_USER}" "${PI_HOST}")"
 
 echo "This will restore Forgejo data from backups on ${TARGET}."
 echo "Existing data under /srv/forgejo will be overwritten."

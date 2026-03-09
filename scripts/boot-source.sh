@@ -1,16 +1,14 @@
 #!/bin/sh
 set -eu
 
+. "$(dirname "$0")/libssh.sh"
+
 PI_HOST="${PI_HOST:?PI_HOST is required}"
 DEPLOY_USER="${DEPLOY_USER:-nixos}"
 IDENTITY_FILE="${IDENTITY_FILE:-}"
 
-TARGET="${DEPLOY_USER}@${PI_HOST}"
-SSH_OPTS="-o StrictHostKeyChecking=accept-new -o PubkeyAuthentication=yes -o ConnectTimeout=10"
-
-if [ -n "${IDENTITY_FILE}" ]; then
-  SSH_OPTS="${SSH_OPTS} -o IdentityFile=${IDENTITY_FILE} -o IdentitiesOnly=yes"
-fi
+TARGET="$(target_host "${DEPLOY_USER}" "${PI_HOST}")"
+SSH_OPTS="$(standard_ssh_opts "${IDENTITY_FILE}")"
 
 ssh ${SSH_OPTS} "${TARGET}" '
 set -eu
