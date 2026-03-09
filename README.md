@@ -66,6 +66,16 @@ GPT-first image model.
 The current design evaluation for `systemd-repart` is documented in
 [`docs/systemd-repart-evaluation.md`](./docs/systemd-repart-evaluation.md).
 
+To evaluate whether a hybrid `systemd-repart` experiment is even possible on
+the currently booted SD system, run:
+
+```bash
+PI_HOST=forgejo-pi.tail8f7f61.ts.net just repart-eval
+```
+
+This does not change disk state. It only reports whether the flashed SSD uses a
+partition table that could support a future `systemd-repart` experiment.
+
 If your admin SSH key is not the default key, pass it explicitly:
 
 ```bash
@@ -149,6 +159,7 @@ The SSD runtime layout expects these labels:
 | Target | Description |
 |--------|-------------|
 | `bootstrap` | From the SD-booted image, resize the flashed SSD root and create the `NIXOS_DATA` partition |
+| `repart-eval` | Check whether the current flashed SSD layout could support a future hybrid `systemd-repart` experiment |
 | `image-build` | Build the Podman builder container (runs CI checks first) |
 | `build` | Build NixOS Raspberry Pi image (`forgejo-pi-image`) |
 | `disk-list` | List available disks on macOS |

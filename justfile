@@ -26,6 +26,7 @@ help:
   @echo "  just boot-source  -> shows whether the Pi is booted from SD or SSD"
   @echo "  just validate     -> verifies the SSD runtime is healthy"
   @echo "  just bootstrap    -> from SD boot, resize flashed SSD root and create the data partition"
+  @echo "  just repart-eval  -> evaluate whether a hybrid systemd-repart experiment is possible"
   @echo "  just deploy       -> deploy the Forgejo runtime to Pi (remote build)"
   @echo "  just restore      -> restores forgejo data from backups"
   @echo ""
@@ -84,6 +85,9 @@ bootstrap:
   PI_HOST={{PI_HOST}} BOOTSTRAP_USER={{BOOTSTRAP_USER}} IDENTITY_FILE={{IDENTITY_FILE}} SSD_DEVICE={{REMOTE_SSD_DEVICE}} ROOT_SIZE_GIB={{ROOT_SIZE_GIB}} BOOTSTRAP_POWEROFF={{BOOTSTRAP_POWEROFF}} ./scripts/bootstrap.sh
   @echo "SSD prepared. Remove the SD card, boot from SSD, verify with 'just boot-source', then run 'just deploy'."
   @echo "If SSD boot stalls in initrd, keep ethernet connected and try SSHing to {{BOOTSTRAP_USER}}@{{PI_HOST}} with the same admin key."
+
+repart-eval:
+  PI_HOST={{PI_HOST}} BOOTSTRAP_USER={{BOOTSTRAP_USER}} IDENTITY_FILE={{IDENTITY_FILE}} SSD_DEVICE={{REMOTE_SSD_DEVICE}} ./scripts/repart-eval.sh
 
 boot-source:
   PI_HOST={{PI_HOST}} DEPLOY_USER={{DEPLOY_USER}} IDENTITY_FILE={{IDENTITY_FILE}} ./scripts/boot-source.sh

@@ -24,6 +24,10 @@ Target scope:
 - evaluate whether `systemd-repart` can replace the extra-partition step now
   implemented by `scripts/bootstrap.sh`
 
+Use `just repart-eval` from the SD-booted system to check the current SSD
+prerequisites before attempting any redesign work. That command is read-only
+and should report `repart-status: blocked` on the current MBR/DOS image model.
+
 Out of scope:
 
 - replacing `sd-image`
