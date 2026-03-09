@@ -22,9 +22,14 @@ NixOS configuration for a Raspberry Pi 4 hosting [Forgejo](https://forgejo.org/)
 # 1. Build the shared bootstrap image once
 just build
 
-# 2. Flash the same image to the SD card and the SSD
-just flash ssd_device=/dev/diskSD
-just flash ssd_device=/dev/diskSSD
+# 2. Flash the same image to the SD card and the SSD from your computer
+diskutil unmountDisk /dev/diskSD
+sudo dd if=output/nixos-pi.img of=/dev/rdiskSD bs=4m status=progress conv=fsync
+diskutil eject /dev/diskSD
+
+diskutil unmountDisk /dev/diskSSD
+sudo dd if=output/nixos-pi.img of=/dev/rdiskSSD bs=4m status=progress conv=fsync
+diskutil eject /dev/diskSSD
 
 # 3. Boot the Pi from the SD card only
 # 4. After the SD system is up, connect the flashed SSD
@@ -62,6 +67,9 @@ proven Raspberry Pi boot path is the shared flashed `sd-image` layout, and that
 image keeps the boot-critical partitioning model expected by this setup.
 `systemd-repart` would only be a good fit after an intentional redesign to a
 GPT-first image model.
+
+The current design evaluation for `systemd-repart` is documented in
+[`docs/systemd-repart-evaluation.md`](./docs/systemd-repart-evaluation.md).
 
 If your admin SSH key is not the default key, pass it explicitly:
 
@@ -125,7 +133,7 @@ ROOT_SIZE_GIB=160 \
 just bootstrap
 ```
 
-### Alternative: Build and flash image manually
+### Local flash commands
 
 ```bash
 # 0. Start podman root mode
@@ -143,8 +151,13 @@ just build
 just disk-list
 
 # 4. Flash the image to both the SD card and the SSD
-just flash ssd_device=/dev/diskSD
-just flash ssd_device=/dev/diskSSD
+diskutil unmountDisk /dev/diskSD
+sudo dd if=output/nixos-pi.img of=/dev/rdiskSD bs=4m status=progress conv=fsync
+diskutil eject /dev/diskSD
+
+diskutil unmountDisk /dev/diskSSD
+sudo dd if=output/nixos-pi.img of=/dev/rdiskSSD bs=4m status=progress conv=fsync
+diskutil eject /dev/diskSSD
 ```
 
 The SSD runtime layout expects these labels:
@@ -160,7 +173,6 @@ The SSD runtime layout expects these labels:
 | `image-build` | Build the Podman builder container (runs CI checks first) |
 | `build` | Build NixOS Raspberry Pi image (`forgejo-pi-image`) |
 | `disk-list` | List available disks on macOS |
-| `flash` | Flash image to SSD/SD card |
 | `boot-source` | Show whether the Pi is currently running from SD or SSD |
 | `deploy` | Deploy runtime configuration (`forgejo-pi` by default) |
 | `deploy-core` | Deploy the boot-safe intermediate runtime profile (`forgejo-pi-core`) |
