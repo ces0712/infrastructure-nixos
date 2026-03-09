@@ -1,6 +1,19 @@
 #!/bin/sh
 set -eu
 
+die() {
+  echo "$*" >&2
+  exit 1
+}
+
+ssh_run() {
+  ssh ${SSH_OPTS} "${TARGET}" "$@"
+}
+
+ssh_run_stdin() {
+  ssh ${SSH_OPTS} "${TARGET}" "$@"
+}
+
 PI_HOST="${PI_HOST:?PI_HOST is required}"
 DEPLOY_USER="${DEPLOY_USER:-nixos}"
 IDENTITY_FILE="${IDENTITY_FILE:-}"
@@ -31,8 +44,7 @@ trap cleanup EXIT INT TERM
 resolve_age_key_source() {
   if [ -n "${SOPS_AGE_KEY_FILE}" ]; then
     if [ ! -f "${SOPS_AGE_KEY_FILE}" ]; then
-      echo "SOPS_AGE_KEY_FILE does not exist: ${SOPS_AGE_KEY_FILE}" >&2
-      exit 1
+      die "SOPS_AGE_KEY_FILE does not exist: ${SOPS_AGE_KEY_FILE}"
     fi
     AGE_KEY_SOURCE_FILE="${SOPS_AGE_KEY_FILE}"
     return 0
@@ -56,13 +68,12 @@ resolve_age_key_source() {
     fi
   fi
 
-  echo "Unable to resolve a SOPS age key from file, env, or pass entry '${SOPS_AGE_KEY_PASS_ENTRY}'." >&2
-  exit 1
+  die "Unable to resolve a SOPS age key from file, env, or pass entry '${SOPS_AGE_KEY_PASS_ENTRY}'."
 }
 
 push_age_key_to_target() {
   echo "Pushing stable SOPS age key to ${TARGET}:/var/lib/sops-nix/key.txt ..."
-  cat "${AGE_KEY_SOURCE_FILE}" | ssh ${SSH_OPTS} "${TARGET}" '
+  cat "${AGE_KEY_SOURCE_FILE}" | ssh_run '
 set -eu
 if [ "$(id -u)" -ne 0 ]; then
   SUDO="sudo"
@@ -77,7 +88,7 @@ $SUDO chmod 600 /var/lib/sops-nix/key.txt
 
 prepare_remote_time() {
   echo "Preparing remote clock on ${TARGET} ..."
-  ssh ${SSH_OPTS} "${TARGET}" "REMOTE_UTC='${LOCAL_UTC_NOW}' sh -s" <<'EOF'
+  ssh_run "REMOTE_UTC='${LOCAL_UTC_NOW}' sh -s" <<'EOF'
 set -eu
 if [ "$(id -u)" -ne 0 ]; then
   SUDO="sudo"
@@ -110,10 +121,10 @@ else
 fi
 
 run_rebuild() {
-  ACTION="$1"
+  action="$1"
   export NIX_SSHOPTS="${SSH_OPTS}"
   nix run nixpkgs#nixos-rebuild -- \
-    "${ACTION}" --flake ".#forgejo-pi" \
+    "${action}" --flake ".#forgejo-pi" \
     --target-host "${TARGET}" \
     --build-host "${TARGET}" \
     ${SUDO_FLAG}
@@ -121,7 +132,7 @@ run_rebuild() {
 
 reboot_target() {
   echo "Rebooting ${TARGET} into the newly installed generation ..."
-  ssh ${SSH_OPTS} "${TARGET}" '
+  ssh_run '
 set -eu
 if [ "$(id -u)" -ne 0 ]; then
   exec sudo systemctl reboot
@@ -159,8 +170,6 @@ case "${DEPLOY_MODE}" in
     fi
     ;;
   *)
-    echo "Unsupported DEPLOY_MODE: ${DEPLOY_MODE}" >&2
-    echo "Expected one of: auto, switch, boot" >&2
-    exit 1
+    die "Unsupported DEPLOY_MODE: ${DEPLOY_MODE}. Expected one of: auto, switch, boot"
     ;;
 esac
