@@ -24,6 +24,7 @@ help:
   @echo "  just image-build  -> builds the builder container"
   @echo "  just build        -> builds the shared SD/SSD bootstrap image"
   @echo "  just disk-list    -> show available disks"
+  @echo "  just flash        -> thin local wrapper around diskutil + dd"
   @echo "  just boot-source  -> shows whether the Pi is booted from SD or SSD"
   @echo "  just golden-create -> capture compressed golden SSD image"
   @echo "  just golden-restore -> restore golden image back to SSD"
@@ -41,7 +42,7 @@ help:
   @echo "  just ci           -> run all checks locally"
   @echo ""
   @echo "Variables:"
-  @echo "  SSD_DEVICE=<device>  -> default: /dev/disk4 (used by optional golden-image helpers)"
+  @echo "  SSD_DEVICE=<device>  -> default: /dev/disk4"
   @echo "  GOLDEN_DEVICE=<device> -> default: /dev/disk4"
   @echo "  GOLDEN_IMAGE=<path> -> required for restore, optional for create"
   @echo "  PI_HOST=<host>       -> default: forgejo-pi.tail8f7f61.ts.net"
@@ -67,6 +68,9 @@ build:
 
 disk-list:
   diskutil list
+
+flash ssd_device=SSD_DEVICE:
+  SSD_DEVICE={{ssd_device}} ./scripts/flash.sh
 
 golden-create:
   GOLDEN_DEVICE={{GOLDEN_DEVICE}} GOLDEN_IMAGE={{GOLDEN_IMAGE}} ./scripts/golden-create.sh

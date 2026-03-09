@@ -23,13 +23,8 @@ NixOS configuration for a Raspberry Pi 4 hosting [Forgejo](https://forgejo.org/)
 just build
 
 # 2. Flash the same image to the SD card and the SSD from your computer
-diskutil unmountDisk /dev/diskSD
-sudo dd if=output/nixos-pi.img of=/dev/rdiskSD bs=4m status=progress conv=fsync
-diskutil eject /dev/diskSD
-
-diskutil unmountDisk /dev/diskSSD
-sudo dd if=output/nixos-pi.img of=/dev/rdiskSSD bs=4m status=progress conv=fsync
-diskutil eject /dev/diskSSD
+just flash ssd_device=/dev/diskSD
+just flash ssd_device=/dev/diskSSD
 
 # 3. Boot the Pi from the SD card only
 # 4. After the SD system is up, connect the flashed SSD
@@ -151,14 +146,13 @@ just build
 just disk-list
 
 # 4. Flash the image to both the SD card and the SSD
-diskutil unmountDisk /dev/diskSD
-sudo dd if=output/nixos-pi.img of=/dev/rdiskSD bs=4m status=progress conv=fsync
-diskutil eject /dev/diskSD
-
-diskutil unmountDisk /dev/diskSSD
-sudo dd if=output/nixos-pi.img of=/dev/rdiskSSD bs=4m status=progress conv=fsync
-diskutil eject /dev/diskSSD
+just flash ssd_device=/dev/diskSD
+just flash ssd_device=/dev/diskSSD
 ```
+
+`just flash` is intentionally a thin local wrapper around `diskutil` and `dd`.
+It does not change the supported architecture; it only automates the host-side
+media write step.
 
 The SSD runtime layout expects these labels:
 - `FIRMWARE` on partition 1 from the flashed image
@@ -173,6 +167,7 @@ The SSD runtime layout expects these labels:
 | `image-build` | Build the Podman builder container (runs CI checks first) |
 | `build` | Build NixOS Raspberry Pi image (`forgejo-pi-image`) |
 | `disk-list` | List available disks on macOS |
+| `flash` | Thin local wrapper around `diskutil` + `dd` |
 | `boot-source` | Show whether the Pi is currently running from SD or SSD |
 | `deploy` | Deploy runtime configuration (`forgejo-pi` by default) |
 | `deploy-core` | Deploy the boot-safe intermediate runtime profile (`forgejo-pi-core`) |
