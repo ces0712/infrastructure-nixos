@@ -1,5 +1,29 @@
 {lib, ...}: {
   options.forgejo-pi = {
+    labels = {
+      firmware = lib.mkOption {
+        type = lib.types.str;
+        default = "FIRMWARE";
+      };
+      root = lib.mkOption {
+        type = lib.types.str;
+        default = "NIXOS_SD";
+      };
+      data = lib.mkOption {
+        type = lib.types.str;
+        default = "NIXOS_DATA";
+      };
+    };
+    image = {
+      firmwareSizeMiB = lib.mkOption {
+        type = lib.types.int;
+        default = 512;
+      };
+      repartDataSizeMin = lib.mkOption {
+        type = lib.types.str;
+        default = "1G";
+      };
+    };
     forgejoStateDir = lib.mkOption {
       type = lib.types.str;
       default = "/srv/forgejo";

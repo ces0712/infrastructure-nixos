@@ -1,11 +1,15 @@
-{lib, ...}: {
+{
+  config,
+  lib,
+  ...
+}: {
   fileSystems = {
     "/" = {
-      device = lib.mkForce "/dev/disk/by-label/NIXOS_SD";
+      device = lib.mkForce "/dev/disk/by-label/${config.forgejo-pi.labels.root}";
       neededForBoot = true;
     };
     "/srv" = {
-      device = lib.mkForce "/dev/disk/by-label/NIXOS_DATA";
+      device = lib.mkForce "/dev/disk/by-label/${config.forgejo-pi.labels.data}";
       fsType = "ext4";
       neededForBoot = false;
       options = [

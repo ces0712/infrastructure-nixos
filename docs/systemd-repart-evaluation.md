@@ -28,6 +28,15 @@ Use `just repart-eval` from the SD-booted system to check the current SSD
 prerequisites before attempting any redesign work. That command is read-only
 and should report `repart-status: blocked` on the current MBR/DOS image model.
 
+There is also a non-default prototype image target in this repo:
+
+- `just build-eval-repart-experimental`
+- `just build-repart-experimental`
+
+That target is for GPT-first image evaluation only. It does not change the
+supported workflow and should not be treated as Raspberry Pi boot-safe until it
+has passed an explicit flash-and-boot test.
+
 Out of scope:
 
 - replacing `sd-image`

@@ -80,6 +80,16 @@ PI_HOST=forgejo-pi.tail8f7f61.ts.net just repart-eval
 This does not change disk state. It only reports whether the flashed SSD uses a
 partition table that could support a future `systemd-repart` experiment.
 
+There is now a separate, non-default GPT prototype image target for that work:
+
+```bash
+just build-eval-repart-experimental
+just build-repart-experimental
+```
+
+That prototype is for evaluation only. It does not change the supported
+workflow and is not considered Raspberry Pi boot-safe until explicitly tested.
+
 If your admin SSH key is not the default key, pass it explicitly:
 
 ```bash
@@ -177,6 +187,7 @@ The SSD runtime layout expects these labels:
 | `repart-eval` | Check whether the current flashed SSD layout could support a future hybrid `systemd-repart` experiment |
 | `image-build` | Build the Podman builder container (runs CI checks first) |
 | `build` | Build NixOS Raspberry Pi image (`forgejo-pi-image`) |
+| `build-repart-experimental` | Build the non-default GPT/repart prototype image |
 | `disk-list` | List available disks on macOS |
 | `flash` | Thin local wrapper around `diskutil` + `dd` |
 | `boot-source` | Show whether the Pi is currently running from SD or SSD |
@@ -187,6 +198,7 @@ The SSD runtime layout expects these labels:
 | `fmt-check` | Check formatting without changes |
 | `check` | Run linting and validation |
 | `build-eval` | Evaluate runtime and image configs |
+| `build-eval-repart-experimental` | Evaluate the GPT/repart prototype image config |
 | `build-dry` | Dry-run build showing changes |
 | `ci` | Run all CI checks locally |
 

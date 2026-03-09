@@ -21,6 +21,7 @@ help:
   @echo "Usage:"
   @echo "  just image-build  -> builds the builder container"
   @echo "  just build        -> builds the shared SD/SSD bootstrap image"
+  @echo "  just build-repart-experimental -> builds the non-default GPT/repart prototype image"
   @echo "  just disk-list    -> show available disks"
   @echo "  just flash        -> thin local wrapper around diskutil + dd"
   @echo "  just boot-source  -> shows whether the Pi is booted from SD or SSD"
@@ -66,6 +67,9 @@ image-build: ci
 
 build:
   . ./scripts/init.sh && export SSH_KEYS_PATH && podman-compose run --rm builder
+
+build-repart-experimental:
+  . ./scripts/init.sh && export SSH_KEYS_PATH && IMAGE_CONFIG=forgejo-pi-image-repart-experimental BUILD_ATTR=.#nixosConfigurations.forgejo-pi-image-repart-experimental.config.system.build.image OUTPUT_IMAGE=output/nixos-pi-repart-experimental.raw podman-compose run --rm builder
 
 disk-list:
   diskutil list
@@ -125,6 +129,11 @@ build-eval:
   @echo "Evaluating image configuration (forgejo-pi-image)..."
   @nix eval '.#nixosConfigurations.forgejo-pi-image.config.system.build.sdImage' --raw > /dev/null
   @echo "Configurations are valid"
+
+build-eval-repart-experimental:
+  @echo "Evaluating experimental GPT/repart image configuration..."
+  @nix eval '.#nixosConfigurations.forgejo-pi-image-repart-experimental.config.system.build.image' --raw > /dev/null
+  @echo "Experimental configuration is valid"
 
 build-dry:
   @echo "Dry-run build (showing changes)..."
