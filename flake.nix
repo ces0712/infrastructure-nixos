@@ -43,7 +43,6 @@
     runtimeModules =
       baseModules
       ++ [
-        ./hosts/forgejo-pi/profile-runtime.nix
         sops-nix.nixosModules.sops
         ./hosts/forgejo-pi/default.nix
         ./hosts/forgejo-pi/sops.nix

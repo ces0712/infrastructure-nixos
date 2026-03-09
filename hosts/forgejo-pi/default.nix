@@ -1,4 +1,6 @@
 {secrets, ...}: {
+  environment.etc."forgejo-pi-profile".text = "runtime";
+
   networking = {
     hostName = "forgejo-pi";
     domain = "tail8f7f61.ts.net";
