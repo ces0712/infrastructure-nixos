@@ -86,13 +86,6 @@ in {
   };
 
   systemd.tmpfiles.rules = [
-    "d ${config.services.forgejo.stateDir} 0750 forgejo forgejo -"
-    "d ${config.services.forgejo.repositoryRoot} 0750 forgejo forgejo -"
-    "d ${config.services.forgejo.customDir} 0750 forgejo forgejo -"
-    "d ${config.services.forgejo.stateDir}/data 0750 forgejo forgejo -"
-    "d ${config.services.forgejo.stateDir}/data/lfs 0750 forgejo forgejo -"
-    "d ${config.services.forgejo.stateDir}/log 0750 forgejo forgejo -"
-    "d ${config.services.forgejo.stateDir}/dump 0750 forgejo forgejo -"
     "d ${builtins.dirOf config.forgejo-pi.dbBackup} 0750 forgejo forgejo -"
   ];
 

@@ -1,9 +1,5 @@
 {lib, ...}: {
   options.forgejo-pi = {
-    dataDir = lib.mkOption {
-      type = lib.types.str;
-      default = "/srv";
-    };
     forgejoStateDir = lib.mkOption {
       type = lib.types.str;
       default = "/srv/forgejo";
