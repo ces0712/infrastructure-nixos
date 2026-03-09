@@ -43,7 +43,7 @@ help:
   @echo "  just ci           -> run all checks locally"
   @echo ""
   @echo "Variables:"
-  @echo "  SSD_DEVICE=<device>  -> default: /dev/disk4"
+  @echo "  device=<device>      -> target disk for 'just flash' (defaults to /dev/disk4)"
   @echo "  GOLDEN_DEVICE=<device> -> default: /dev/disk4"
   @echo "  GOLDEN_IMAGE=<path> -> required for restore, optional for create"
   @echo "  PI_HOST=<host>       -> default: forgejo-pi.tail8f7f61.ts.net"
@@ -69,8 +69,8 @@ build:
 disk-list:
   diskutil list
 
-flash ssd_device=SSD_DEVICE:
-  SSD_DEVICE={{ssd_device}} ./scripts/flash.sh
+flash device=SSD_DEVICE:
+  SSD_DEVICE={{device}} ./scripts/flash.sh
 
 golden-create:
   GOLDEN_DEVICE={{GOLDEN_DEVICE}} GOLDEN_IMAGE={{GOLDEN_IMAGE}} ./scripts/golden-create.sh

@@ -23,8 +23,8 @@ NixOS configuration for a Raspberry Pi 4 hosting [Forgejo](https://forgejo.org/)
 just build
 
 # 2. Flash the same image to the SD card and the SSD from your computer
-just flash ssd_device=/dev/diskSD
-just flash ssd_device=/dev/diskSSD
+just flash device=/dev/diskSD
+just flash device=/dev/diskSSD
 
 # 3. Boot the Pi from the SD card only
 # 4. After the SD system is up, connect the flashed SSD
@@ -141,8 +141,8 @@ just build
 just disk-list
 
 # 4. Flash the image to both the SD card and the SSD
-just flash ssd_device=/dev/diskSD
-just flash ssd_device=/dev/diskSSD
+just flash device=/dev/diskSD
+just flash device=/dev/diskSSD
 ```
 
 `just flash` is intentionally a thin local wrapper around `diskutil` and `dd`.
