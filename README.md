@@ -12,7 +12,7 @@ NixOS configuration for a Raspberry Pi 4 hosting [Forgejo](https://forgejo.org/)
 
 ### Prerequisites
 
-- [Podman](https://podman.io/) or Docker
+- [Podman](https://podman.io/) with `podman-compose`
 - [just](https://github.com/casey/just)
 - SSH access to the Pi
 
