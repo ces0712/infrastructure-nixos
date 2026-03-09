@@ -1,6 +1,8 @@
 #!/bin/sh
 set -eu
 
+. "$(dirname "$0")/libmedia.sh"
+
 DEVICE="${DEVICE:-${GOLDEN_DEVICE:-/dev/disk4}}"
 GOLDEN_IMAGE="${GOLDEN_IMAGE:-}"
 
@@ -15,24 +17,13 @@ if [ ! -f "${GOLDEN_IMAGE}" ]; then
   exit 1
 fi
 
-if [ ! -b "${DEVICE}" ]; then
-  echo "Error: device not found: ${DEVICE}"
-  exit 1
-fi
-
-DISK_ID="$(echo "${DEVICE}" | sed 's|/dev/||')"
-
-if mount | grep -q "^/dev/${DISK_ID}"; then
-  echo "Error: ${DEVICE} has mounted partitions."
-  echo "Run: diskutil unmountDisk ${DEVICE}"
-  exit 1
-fi
+require_block_device "${DEVICE}"
+require_unmounted_disk "${DEVICE}"
 
 echo "Restoring golden image to ${DEVICE}"
 echo "Image: ${GOLDEN_IMAGE}"
 echo "WARNING: this will erase all data on ${DEVICE}"
-echo "Press ENTER to continue or Ctrl+C to abort"
-read -r
+confirm_continue
 
 case "${GOLDEN_IMAGE}" in
   *.zst)
