@@ -35,9 +35,21 @@ else
   systemd_version="unknown"
 fi
 
-partition_table="$(
-  parted -s "${disk}" print 2>/dev/null | awk -F': ' '/Partition Table/ {print $2}'
-)"
+partition_table=""
+
+if command -v lsblk >/dev/null 2>&1; then
+  partition_table="$(lsblk -dn -o PTTYPE "${disk}" 2>/dev/null || true)"
+fi
+
+if [ -z "${partition_table}" ] && command -v blkid >/dev/null 2>&1; then
+  partition_table="$(blkid -p -o export "${disk}" 2>/dev/null | awk -F= '/^PTTYPE=/ {print $2}' || true)"
+fi
+
+if [ -z "${partition_table}" ] && command -v parted >/dev/null 2>&1; then
+  partition_table="$(
+    LC_ALL=C parted -s "${disk}" print 2>/dev/null | awk -F': ' '/Partition Table/ {print $2}'
+  )"
+fi
 
 root_source="$(findmnt -n -o SOURCE / || true)"
 
