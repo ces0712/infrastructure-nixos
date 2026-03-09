@@ -1,5 +1,6 @@
 {
   config,
+  lib,
   pkgs,
   ...
 }: {
@@ -10,22 +11,46 @@
     kernelPackages = pkgs.${config.forgejo-pi.kernelPackages};
 
     kernelParams = [
-      "cma=64M"
-      "console=ttyS0,115200n8"
       "console=tty1"
+      "console=ttyAMA0,115200n8"
+      "rootwait"
+      "rootdelay=10"
+      "loglevel=7"
+      "systemd.log_level=debug"
+      "systemd.log_target=console"
+      "rd.udev.log_level=debug"
+      "rd.systemd.show_status=true"
     ];
 
+    consoleLogLevel = 7;
+
     kernelModules = [
-      "vc4"
-      "i2c_dev"
       "bcm2835_wdt"
     ];
 
-    initrd.availableKernelModules = [
-      "xhci_pci"
-      "usbhid"
-      "usb_storage"
-      "vc4"
+    initrd = {
+      systemd.enable = true;
+      systemd.emergencyAccess = true;
+      verbose = true;
+      availableKernelModules = [
+        "xhci_pci"
+        "uas"
+        "sd_mod"
+        "usb_storage"
+        "usbhid"
+      ];
+    };
+
+    # Forgejo node is wired; disable Bluetooth stack/modules.
+    blacklistedKernelModules = [
+      "bluetooth"
+      "btusb"
+      "hci_uart"
+      "btbcm"
+      "btqca"
+      "btsdio"
+      "btintel"
+      "btrtl"
     ];
 
     # ============================================================
@@ -35,7 +60,7 @@
       grub.enable = false;
       generic-extlinux-compatible = {
         enable = true;
-        configurationLimit = 5; # limit generations /boot
+        configurationLimit = 1; # keep a single boot entry to avoid stale sd-card fallbacks
       };
       timeout = 3;
     };
@@ -56,10 +81,15 @@
   # ============================================================
   hardware = {
     enableRedistributableFirmware = true;
-    graphics = {
-      enable = true; # VideoCore IV
+    bluetooth = {
+      enable = false;
+      powerOnBoot = false;
     };
   };
+
+  # Prevent userspace BT stack from starting.
+  systemd.services.bluetooth.enable = false;
+  systemd.services.hciuart.enable = false;
 
   # ============================================================
   # Reset module - clean RPi4 reboot behavior
@@ -69,6 +99,9 @@
   # ============================================================
   # Swap - zram primary, swapfile fallback
   # ============================================================
+  # Avoid boot blocking on USB swap partition discovery timing.
+  swapDevices = lib.mkForce [];
+
   zramSwap = {
     enable = true;
     algorithm = "zstd";
@@ -123,6 +156,8 @@
       max-jobs = 2;
       cores = 2;
       auto-optimise-store = true;
+      trusted-users = ["root" "nixos"];
+      allowed-users = ["root" "nixos"];
     };
   };
 

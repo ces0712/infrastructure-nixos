@@ -1,17 +1,24 @@
 {lib, ...}: {
   options.forgejo-pi = {
+    dataDir = lib.mkOption {
+      type = lib.types.str;
+      default = "/srv";
+    };
+    forgejoStateDir = lib.mkOption {
+      type = lib.types.str;
+      default = "/srv/forgejo";
+    };
+    backupStateDir = lib.mkOption {
+      type = lib.types.str;
+      default = "/srv/restic-backup";
+    };
     dbPath = lib.mkOption {
       type = lib.types.str;
-      default = "/var/lib/forgejo/data/forgejo.db";
+      default = "/srv/forgejo/data/forgejo.db";
     };
     dbBackup = lib.mkOption {
       type = lib.types.str;
-      default = "/tmp/forgejo-backup.db";
-    };
-    ssdDevice = lib.mkOption {
-      type = lib.types.str;
-      default = "/dev/sda";
-      description = "SSD device for disko partitioning";
+      default = "/srv/backup/forgejo/forgejo-backup.db";
     };
     kernelPackages = lib.mkOption {
       type = lib.types.str;

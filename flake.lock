@@ -20,26 +20,6 @@
         "type": "github"
       }
     },
-    "disko": {
-      "inputs": {
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1771469470,
-        "narHash": "sha256-GnqdqhrguKNN3HtVfl6z+zbV9R9jhHFm3Z8nu7R6ml0=",
-        "owner": "nix-community",
-        "repo": "disko",
-        "rev": "4707eec8d1d2db5182ea06ed48c820a86a42dc13",
-        "type": "github"
-      },
-      "original": {
-        "owner": "nix-community",
-        "repo": "disko",
-        "type": "github"
-      }
-    },
     "fenix": {
       "inputs": {
         "nixpkgs": [
@@ -110,11 +90,28 @@
         "type": "github"
       }
     },
+    "raspberrypi-firmware": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1757956496,
+        "narHash": "sha256-DqVgsPhppxCsZ+H6S7XY5bBoRhOgPipKibDwikqBk08=",
+        "owner": "raspberrypi",
+        "repo": "firmware",
+        "rev": "676efed1194de38975889a34276091da1f5aadd3",
+        "type": "github"
+      },
+      "original": {
+        "owner": "raspberrypi",
+        "ref": "1.20250915",
+        "repo": "firmware",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
         "alejandra": "alejandra",
-        "disko": "disko",
         "nixpkgs": "nixpkgs_2",
+        "raspberrypi-firmware": "raspberrypi-firmware",
         "secrets": "secrets",
         "sops-nix": "sops-nix"
       }
@@ -139,11 +136,11 @@
     "secrets": {
       "flake": false,
       "locked": {
-        "lastModified": 1771714446,
-        "narHash": "sha256-POXrTzsuc9zXwzLIPxJ+EbafIFKhZa9N37b1oK1BAIU=",
+        "lastModified": 1772408000,
+        "narHash": "sha256-oKThHhNI93liLooydt9vaKtcx1bv/sZg2OYdtMyv6ns=",
         "ref": "refs/heads/main",
-        "rev": "3200294a06f69bd41e9bc32fcd4db8bfd4f1eca5",
-        "revCount": 13,
+        "rev": "0fd2a0e26dd5cd172502b7138409ad6fb673d5bb",
+        "revCount": 14,
         "type": "git",
         "url": "ssh://git@github.com/ces0712/infrastructure-secrets.git"
       },
@@ -159,11 +156,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1771524872,
-        "narHash": "sha256-eksVUcUsfS9mQx4D9DrYu88u9w70bAf+n6KmTDuIGEE=",
+        "lastModified": 1772401007,
+        "narHash": "sha256-YHykQg0h9hrlZGpMcywnaFzQ1Kn/5YNCCOSaaAl6z7Q=",
         "owner": "Mic92",
         "repo": "sops-nix",
-        "rev": "e85540ffe97322dc1fea14dd11cdc2f59d540ac7",
+        "rev": "d8be5ea4cd3bc363492ab5bc6e874ccdc5465fe4",
         "type": "github"
       },
       "original": {

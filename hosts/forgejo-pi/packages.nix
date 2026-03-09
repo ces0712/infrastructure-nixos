@@ -13,5 +13,6 @@
     sqlite
     restic
     rclone
+    raspberrypi-eeprom
   ];
 }

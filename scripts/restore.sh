@@ -1,12 +1,20 @@
 #!/bin/sh
-set -e
+set -eu
 
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m'
 
 PI_HOST="${PI_HOST:-forgejo-pi.tail8f7f61.ts.net}"
-SECRETS_PATH=$(nix eval --raw '.inputs.secrets.outPath')
+IDENTITY_FILE="${IDENTITY_FILE:-}"
+DB_PATH="${DB_PATH:-/srv/forgejo/data/forgejo.db}"
+DB_BACKUP_PATH="${DB_BACKUP_PATH:-/srv/backup/forgejo/forgejo-backup.db}"
+RCLONE_CONFIG_PATH="${RCLONE_CONFIG_PATH:-/srv/restic-backup/.config/rclone/rclone.conf}"
+
+SSH_OPTS="-o IdentitiesOnly=yes"
+if [ -n "$IDENTITY_FILE" ]; then
+  SSH_OPTS="$SSH_OPTS -i $IDENTITY_FILE"
+fi
 
 echo "${YELLOW}⚠️  This will restore forgejo data from borgbase.${NC}"
 echo "${YELLOW}   Existing data will be overwritten.${NC}"
@@ -14,38 +22,45 @@ echo "${YELLOW}   Press ENTER to continue or Ctrl+C to abort${NC}"
 read -r
 
 echo "${GREEN}📡 Waiting for SSH via Tailscale...${NC}"
-until ssh root@"$PI_HOST" true 2>/dev/null; do
+until ssh $SSH_OPTS root@"$PI_HOST" true 2>/dev/null; do
   echo "   Retrying..."
   sleep 5
 done
 
 echo "${GREEN}⏹️  Stopping forgejo...${NC}"
-ssh root@"$PI_HOST" "systemctl stop forgejo"
+ssh $SSH_OPTS root@"$PI_HOST" "systemctl stop forgejo"
 
 echo "${GREEN}📦 Restoring from borgbase...${NC}"
-ssh root@"$PI_HOST" "
+ssh $SSH_OPTS root@"$PI_HOST" "
   restic restore latest \
-    --repo \$(cat \$(cat /run/secrets/restic/borgbase_repo)) \
+    --repository-file /run/secrets/restic/borgbase_repo \
     --password-file /run/secrets/restic/borgbase_password \
     --target / \
     --verbose
 "
 
 echo "${GREEN}🗄️  Restoring SQLite DB...${NC}"
-ssh root@"$PI_HOST" "
-  # restore from snapshot backup if needed
-  cp /var/lib/forgejo/data/forgejo.db \
-     /var/lib/forgejo/data/forgejo.db.bak
-  sqlite3 /var/lib/forgejo/data/forgejo.db \
+ssh $SSH_OPTS root@"$PI_HOST" "
+  if [ -f ${DB_PATH} ]; then
+    cp ${DB_PATH} ${DB_PATH}.bak
+  fi
+  if [ ! -f ${DB_BACKUP_PATH} ]; then
+    echo "Missing restored DB backup at ${DB_BACKUP_PATH}"
+    exit 1
+  fi
+  install -d -m 750 \$(dirname ${DB_PATH})
+  cp -f ${DB_BACKUP_PATH} ${DB_PATH}
+  sqlite3 ${DB_PATH} \
     'PRAGMA journal_mode=WAL;'
-  chown -R forgejo:forgejo /var/lib/forgejo
+  chown -R forgejo:forgejo /srv/forgejo
 "
 
 echo "${GREEN}📁 Restoring LFS from pCloud...${NC}"
-ssh root@"$PI_HOST" "
+ssh $SSH_OPTS root@"$PI_HOST" "
   rclone sync \
     pcloud:forgejo-lfs-backup \
-    /var/lib/forgejo/data/lfs \
+    /srv/forgejo/data/lfs \
+    --config ${RCLONE_CONFIG_PATH} \
     --checksum \
     --fast-list \
     --transfers 4 \
@@ -53,8 +68,8 @@ ssh root@"$PI_HOST" "
 "
 
 echo "${GREEN}▶️  Starting forgejo...${NC}"
-ssh root@"$PI_HOST" "
-  chown -R forgejo:forgejo /var/lib/forgejo
+ssh $SSH_OPTS root@"$PI_HOST" "
+  chown -R forgejo:forgejo /srv/forgejo
   systemctl start forgejo
   systemctl status forgejo
 "

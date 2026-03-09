@@ -11,28 +11,38 @@
   users.users.restic-backup = {
     isSystemUser = true;
     group = "restic-backup";
-    home = "/var/lib/restic-backup";
+    home = config.forgejo-pi.backupStateDir;
     createHome = true;
     # needs to read forgejo data
     extraGroups = ["forgejo"];
   };
   users.groups.restic-backup = {};
+
+  systemd.tmpfiles.rules = [
+    "d ${config.forgejo-pi.backupStateDir} 0750 restic-backup restic-backup -"
+    "d ${config.forgejo-pi.backupStateDir}/.config 0750 restic-backup restic-backup -"
+    "d ${config.forgejo-pi.backupStateDir}/.config/rclone 0750 restic-backup restic-backup -"
+  ];
+
   services.restic.backups.borgbase = {
     initialize = true;
     repositoryFile = config.sops.secrets."restic/borgbase_repo".path;
     passwordFile = config.sops.secrets."restic/borgbase_password".path;
     paths = [
       config.forgejo-pi.dbBackup
-      "/var/lib/forgejo/repositories"
-      "/var/lib/forgejo/custom"
+      config.services.forgejo.repositoryRoot
+      config.services.forgejo.customDir
+      "${config.services.forgejo.stateDir}/data"
     ];
     exclude = [
-      "/var/lib/forgejo/log"
+      "${config.services.forgejo.stateDir}/log"
+      "${config.services.forgejo.stateDir}/data/lfs/**"
       "**/.cache"
       "**/tmp"
       "**/cache"
     ];
     backupPrepareCommand = ''
+      install -d -m 750 "$(dirname ${config.forgejo-pi.dbBackup})"
       ${pkgs.sqlite}/bin/sqlite3 ${config.forgejo-pi.dbPath} \
         ".backup ${config.forgejo-pi.dbBackup}"
       chmod 640 ${config.forgejo-pi.dbBackup}
@@ -59,8 +69,8 @@
   # ============================================================
   systemd.services.rclone-pcloud-backup = {
     description = "Rclone LFS backup to pCloud";
-    after = ["network-online.target" "sops-nix.service"];
-    requires = ["network-online.target"];
+    after = ["network-online.target" "sops-install-secrets.service"];
+    requires = ["network-online.target" "sops-install-secrets.service"];
 
     serviceConfig = {
       Type = "oneshot";
@@ -72,8 +82,9 @@
 
     script = ''
       ${pkgs.rclone}/bin/rclone sync \
-          /var/lib/forgejo/data/lfs \
+          ${config.services.forgejo.stateDir}/data/lfs \
           pcloud:forgejo-lfs-backup \
+          --config ${config.sops.secrets."rclone/pcloud_config".path} \
           --checksum \
           --fast-list \
           --track-renames \

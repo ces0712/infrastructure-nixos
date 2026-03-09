@@ -1,5 +1,6 @@
 {
   config,
+  lib,
   pkgs,
   ...
 }: let
@@ -9,6 +10,7 @@
 in {
   services.forgejo = {
     enable = true;
+    stateDir = config.forgejo-pi.forgejoStateDir;
     lfs.enable = true;
     database = {
       type = "sqlite3";
@@ -53,6 +55,47 @@ in {
       };
     };
   };
+
+  systemd.services.forgejo-secrets = {
+    before = ["forgejo.service"];
+    after = ["srv.mount"];
+    requires = ["srv.mount"];
+  };
+
+  systemd.services.forgejo = {
+    wantedBy = lib.mkForce ["multi-user.target"];
+    wants = ["network-online.target"];
+    after = [
+      "network-online.target"
+      "forgejo-secrets.service"
+      "srv.mount"
+    ];
+    requires = [
+      "forgejo-secrets.service"
+      "srv.mount"
+    ];
+  };
+
+  systemd.timers.forgejo-autostart = {
+    description = "Start Forgejo shortly after boot";
+    wantedBy = ["timers.target"];
+    timerConfig = {
+      OnBootSec = "15s";
+      Unit = "forgejo.service";
+    };
+  };
+
+  systemd.tmpfiles.rules = [
+    "d ${config.services.forgejo.stateDir} 0750 forgejo forgejo -"
+    "d ${config.services.forgejo.repositoryRoot} 0750 forgejo forgejo -"
+    "d ${config.services.forgejo.customDir} 0750 forgejo forgejo -"
+    "d ${config.services.forgejo.stateDir}/data 0750 forgejo forgejo -"
+    "d ${config.services.forgejo.stateDir}/data/lfs 0750 forgejo forgejo -"
+    "d ${config.services.forgejo.stateDir}/log 0750 forgejo forgejo -"
+    "d ${config.services.forgejo.stateDir}/dump 0750 forgejo forgejo -"
+    "d ${builtins.dirOf config.forgejo-pi.dbBackup} 0750 forgejo forgejo -"
+  ];
+
   systemd.services.forgejo-wal = {
     description = "Enable WAL mode for Forgejo SQLite";
     after = ["forgejo.service"];

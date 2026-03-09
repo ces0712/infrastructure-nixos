@@ -7,7 +7,7 @@ services:
     container_name: nix-pi-builder
     volumes:
       - nix-store-cache:/nix:Z
-      - ${SECRETS_PATH}:/tmp/.ssh:ro
+      - ${SSH_KEYS_PATH:-/tmp/keys}:/tmp/.ssh:ro
       - ./output:/src/output
     cap_add:
       - SYS_ADMIN

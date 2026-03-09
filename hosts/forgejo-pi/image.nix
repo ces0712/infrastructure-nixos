@@ -1,8 +1,10 @@
 {...}: {
-  # Keep image simple and bootable; grow root fs on first boot.
+  # Shared bootstrap image flashed to both SD and SSD. Keep labels stable and
+  # leave spare SSD capacity for the remote partitioning step.
   sdImage = {
     compressImage = false;
     populateRootCommands = "";
-    expandOnBoot = true;
+    expandOnBoot = false;
+    firmwareSize = 512;
   };
 }

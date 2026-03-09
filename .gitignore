@@ -21,6 +21,7 @@ Icon
 *.swp
 *.swo
 *~
+AGENTS.md
 
 # Temporary
 tmp/

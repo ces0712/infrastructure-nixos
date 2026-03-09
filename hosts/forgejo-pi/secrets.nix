@@ -3,7 +3,7 @@
 #
 # Maps encrypted secrets from secrets/secrets.yaml to filesystem paths
 # for use by NixOS services.
-_: {
+{config, ...}: {
   sops.secrets = {
     # ----------------------------------------------------------
     # Forgejo Secrets
@@ -36,7 +36,7 @@ _: {
     "rclone/pcloud_config" = {
       owner = "restic-backup";
       group = "restic-backup";
-      path = "/var/lib/restic-backup/.config/rclone/rclone.conf";
+      path = "${config.forgejo-pi.backupStateDir}/.config/rclone/rclone.conf";
       mode = "0600";
     };
   };
