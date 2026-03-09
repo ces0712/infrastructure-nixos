@@ -28,6 +28,7 @@
   }: let
     forSystem = nixpkgs.lib.genAttrs;
     baseModules = [
+      ./hosts/forgejo-pi/common-base.nix
       ./hosts/forgejo-pi/options.nix
       ./hosts/forgejo-pi/firmware.nix
       ./hosts/forgejo-pi/packages.nix
