@@ -87,7 +87,7 @@ bootstrap:
   @echo "If SSD boot stalls in initrd, keep ethernet connected and try SSHing to {{BOOTSTRAP_USER}}@{{PI_HOST}} with the same admin key."
 
 repart-eval:
-  PI_HOST={{PI_HOST}} BOOTSTRAP_USER={{BOOTSTRAP_USER}} IDENTITY_FILE={{IDENTITY_FILE}} SSD_DEVICE={{REMOTE_SSD_DEVICE}} ./scripts/repart-eval.sh
+  PI_HOST={{PI_HOST}} DEPLOY_USER={{DEPLOY_USER}} IDENTITY_FILE={{IDENTITY_FILE}} SSD_DEVICE={{REMOTE_SSD_DEVICE}} ./scripts/repart-eval.sh
 
 boot-source:
   PI_HOST={{PI_HOST}} DEPLOY_USER={{DEPLOY_USER}} IDENTITY_FILE={{IDENTITY_FILE}} ./scripts/boot-source.sh

@@ -2,11 +2,11 @@
 set -eu
 
 PI_HOST="${PI_HOST:?PI_HOST is required}"
-BOOTSTRAP_USER="${BOOTSTRAP_USER:-root}"
+DEPLOY_USER="${DEPLOY_USER:-nixos}"
 IDENTITY_FILE="${IDENTITY_FILE:-}"
 SSD_DEVICE="${SSD_DEVICE:-/dev/sda}"
 
-TARGET="${BOOTSTRAP_USER}@${PI_HOST}"
+TARGET="${DEPLOY_USER}@${PI_HOST}"
 SSH_OPTS="-o StrictHostKeyChecking=accept-new -o PubkeyAuthentication=yes -o ConnectTimeout=10"
 
 if [ -n "${IDENTITY_FILE}" ]; then
