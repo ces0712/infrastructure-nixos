@@ -2,7 +2,7 @@
 set -eu
 
 PI_HOST="${PI_HOST:?PI_HOST is required}"
-BOOT_USER="${BOOT_USER:-root}"
+BOOT_USER="${BOOT_USER:-${DEPLOY_USER:-nixos}}"
 IDENTITY_FILE="${IDENTITY_FILE:-}"
 
 TARGET="${BOOT_USER}@${PI_HOST}"

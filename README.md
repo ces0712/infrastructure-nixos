@@ -38,7 +38,10 @@ PI_HOST=forgejo-pi.tail8f7f61.ts.net just boot-source
 # 7. Switch the SSD system to the full Forgejo runtime profile
 PI_HOST=forgejo-pi.tail8f7f61.ts.net just deploy
 
-# 8. Restore data from backups (optional)
+# 8. Validate that the SSD runtime is stable
+PI_HOST=forgejo-pi.tail8f7f61.ts.net just validate
+
+# 9. Restore data from backups (optional)
 PI_HOST=forgejo-pi.tail8f7f61.ts.net just restore
 ```
 
@@ -169,6 +172,7 @@ The SSD runtime layout expects these labels:
 | `disk-list` | List available disks on macOS |
 | `flash` | Thin local wrapper around `diskutil` + `dd` |
 | `boot-source` | Show whether the Pi is currently running from SD or SSD |
+| `validate` | Verify the SSD runtime profile, mounts, and core services |
 | `deploy` | Deploy runtime configuration (`forgejo-pi` by default) |
 | `deploy-core` | Deploy the boot-safe intermediate runtime profile (`forgejo-pi-core`) |
 | `restore` | Restore Forgejo data from backups |
@@ -303,8 +307,11 @@ sudo journalctl -b -f
 ### Rebuild
 
 ```bash
-# Rebuild and switch
-nixos-rebuild switch --flake .#forgejo-pi --target-host root@forgejo-pi.tail8f7f61.ts.net
+# Preferred operational path
+PI_HOST=forgejo-pi.tail8f7f61.ts.net IDENTITY_FILE=~/.ssh/id_ed25519 just deploy
+
+# Direct rebuild (same default SSH user model)
+nixos-rebuild switch --flake .#forgejo-pi --target-host nixos@forgejo-pi.tail8f7f61.ts.net --use-remote-sudo
 ```
 
 ### Rollback
