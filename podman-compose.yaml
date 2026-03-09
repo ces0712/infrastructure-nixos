@@ -16,7 +16,7 @@ services:
     environment:
       PI_HOST: ${PI_HOST:-forgejo-pi.tail8f7f61.ts.net}
       SECRETS_PATH: ${SECRETS_PATH:-/tmp/keys}
-    command: ["sh", "-c", "./scripts/${MAKE_TARGET:-build}.sh"]
+    command: ["sh", "-eu", "./scripts/build-image.sh"]
 
 volumes:
   nix-store-cache:
