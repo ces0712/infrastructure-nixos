@@ -35,9 +35,6 @@
       "${nixpkgs}/nixos/modules/installer/sd-card/sd-image-aarch64.nix"
       ./hosts/forgejo-pi/image.nix
     ];
-    repartImageModules = [
-      ./hosts/forgejo-pi/repart-image-experimental.nix
-    ];
     baseModules = [
       ./hosts/forgejo-pi/common-base.nix
       ./hosts/forgejo-pi/options.nix
@@ -68,11 +65,6 @@
         inherit system specialArgs;
         modules = modules ++ sdImageModules;
       };
-    mkPiRepartSystem = modules:
-      nixpkgs.lib.nixosSystem {
-        inherit system specialArgs;
-        modules = modules ++ repartImageModules;
-      };
   in {
     formatter = forSystem ["aarch64-darwin" "aarch64-linux" "x86_64-darwin" "x86_64-linux"] (system: alejandra.packages.${system}.default);
 
@@ -81,8 +73,5 @@
 
     # Shared bootstrap image flashed to both the SD card and the SSD.
     nixosConfigurations.forgejo-pi-image = mkPiSystem bootstrapModules;
-
-    # Experimental GPT-first image for systemd-repart evaluation only.
-    nixosConfigurations.forgejo-pi-image-repart-experimental = mkPiRepartSystem (bootstrapModules ++ [./hosts/forgejo-pi/disk.nix]);
   };
 }

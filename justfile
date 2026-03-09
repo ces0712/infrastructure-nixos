@@ -22,13 +22,11 @@ help:
   @echo "Usage:"
   @echo "  just image-build  -> builds the builder container"
   @echo "  just build        -> builds the shared SD/SSD bootstrap image"
-  @echo "  just build-repart-experimental -> builds the non-default GPT/repart prototype image"
   @echo "  just disk-list    -> show available disks"
   @echo "  just flash        -> thin local wrapper around diskutil + dd"
   @echo "  just boot-source  -> shows whether the Pi is booted from SD or SSD"
   @echo "  just validate     -> verifies the SSD runtime is healthy"
   @echo "  just bootstrap    -> from SD boot, resize flashed SSD root and create the data partition"
-  @echo "  just repart-eval  -> evaluate whether a hybrid systemd-repart experiment is possible"
   @echo "  just deploy       -> deploy the Forgejo runtime to Pi (remote build)"
   @echo "  just restore      -> restores forgejo data from backups"
   @echo ""
@@ -69,9 +67,6 @@ image-build: ci
 build:
   . ./scripts/init.sh && export SSH_KEYS_PATH && podman-compose run --rm builder
 
-build-repart-experimental:
-  . ./scripts/init.sh && export SSH_KEYS_PATH && IMAGE_CONFIG=forgejo-pi-image-repart-experimental BUILD_ATTR=.#nixosConfigurations.forgejo-pi-image-repart-experimental.config.system.build.image OUTPUT_IMAGE=output/nixos-pi-repart-experimental.raw podman-compose run --rm builder
-
 disk-list:
   diskutil list
 
@@ -91,9 +86,6 @@ bootstrap:
   PI_HOST={{PI_HOST}} BOOTSTRAP_USER={{BOOTSTRAP_USER}} IDENTITY_FILE={{IDENTITY_FILE}} SSD_DEVICE={{REMOTE_SSD_DEVICE}} ROOT_SIZE_GIB={{ROOT_SIZE_GIB}} BOOTSTRAP_POWEROFF={{BOOTSTRAP_POWEROFF}} ./scripts/bootstrap.sh
   @echo "SSD prepared. Remove the SD card, boot from SSD, verify with 'just boot-source', then run 'just deploy'."
   @echo "If SSD boot stalls in initrd, keep ethernet connected and try SSHing to {{BOOTSTRAP_USER}}@{{PI_HOST}} with the same admin key."
-
-repart-eval:
-  PI_HOST={{PI_HOST}} DEPLOY_USER={{DEPLOY_USER}} IDENTITY_FILE={{IDENTITY_FILE}} SSD_DEVICE={{REMOTE_SSD_DEVICE}} ./scripts/repart-eval.sh
 
 boot-source:
   PI_HOST={{PI_HOST}} DEPLOY_USER={{DEPLOY_USER}} IDENTITY_FILE={{IDENTITY_FILE}} ./scripts/boot-source.sh
@@ -130,11 +122,6 @@ build-eval:
   @echo "Evaluating image configuration (forgejo-pi-image)..."
   @nix eval '.#nixosConfigurations.forgejo-pi-image.config.system.build.sdImage' --raw > /dev/null
   @echo "Configurations are valid"
-
-build-eval-repart-experimental:
-  @echo "Evaluating experimental GPT/repart image configuration..."
-  @nix eval '.#nixosConfigurations.forgejo-pi-image-repart-experimental.config.system.build.image' --raw > /dev/null
-  @echo "Experimental configuration is valid"
 
 build-dry:
   @echo "Dry-run build (showing changes)..."
