@@ -1,10 +1,6 @@
 #!/bin/sh
 set -eu
 
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-NC='\033[0m'
-
 PI_HOST="${PI_HOST:-forgejo-pi.tail8f7f61.ts.net}"
 DEPLOY_USER="${DEPLOY_USER:-nixos}"
 IDENTITY_FILE="${IDENTITY_FILE:-}"
@@ -12,29 +8,29 @@ DB_PATH="${DB_PATH:-/srv/forgejo/data/forgejo.db}"
 DB_BACKUP_PATH="${DB_BACKUP_PATH:-/srv/backup/forgejo/forgejo-backup.db}"
 RCLONE_CONFIG_PATH="${RCLONE_CONFIG_PATH:-/srv/restic-backup/.config/rclone/rclone.conf}"
 
-SSH_OPTS="-o IdentitiesOnly=yes"
-if [ -n "$IDENTITY_FILE" ]; then
-  SSH_OPTS="$SSH_OPTS -i $IDENTITY_FILE"
+SSH_OPTS="-o StrictHostKeyChecking=accept-new -o PubkeyAuthentication=yes -o ConnectTimeout=10 -o IdentitiesOnly=yes"
+if [ -n "${IDENTITY_FILE}" ]; then
+  SSH_OPTS="${SSH_OPTS} -i ${IDENTITY_FILE}"
 fi
 
 TARGET="${DEPLOY_USER}@${PI_HOST}"
 
-echo "${YELLOW}⚠️  This will restore forgejo data from borgbase.${NC}"
-echo "${YELLOW}   Existing data will be overwritten.${NC}"
-echo "${YELLOW}   Press ENTER to continue or Ctrl+C to abort${NC}"
+echo "This will restore Forgejo data from backups on ${TARGET}."
+echo "Existing data under /srv/forgejo will be overwritten."
+echo "Press ENTER to continue or Ctrl+C to abort."
 read -r
 
-echo "${GREEN}📡 Waiting for SSH via Tailscale...${NC}"
-until ssh $SSH_OPTS "${TARGET}" true 2>/dev/null; do
-  echo "   Retrying..."
+echo "Waiting for SSH on ${TARGET} ..."
+until ssh ${SSH_OPTS} "${TARGET}" true 2>/dev/null; do
+  echo "Retrying..."
   sleep 5
 done
 
-echo "${GREEN}⏹️  Stopping forgejo...${NC}"
-ssh $SSH_OPTS "${TARGET}" "sudo systemctl stop forgejo"
+echo "Stopping Forgejo ..."
+ssh ${SSH_OPTS} "${TARGET}" "sudo systemctl stop forgejo"
 
-echo "${GREEN}📦 Restoring from borgbase...${NC}"
-ssh $SSH_OPTS "${TARGET}" "
+echo "Restoring from Borgbase ..."
+ssh ${SSH_OPTS} "${TARGET}" "
   sudo restic restore latest \
     --repository-file /run/secrets/restic/borgbase_repo \
     --password-file /run/secrets/restic/borgbase_password \
@@ -42,8 +38,8 @@ ssh $SSH_OPTS "${TARGET}" "
     --verbose
 "
 
-echo "${GREEN}🗄️  Restoring SQLite DB...${NC}"
-ssh $SSH_OPTS "${TARGET}" "
+echo "Restoring SQLite database ..."
+ssh ${SSH_OPTS} "${TARGET}" "
   if [ -f ${DB_PATH} ]; then
     sudo cp ${DB_PATH} ${DB_PATH}.bak
   fi
@@ -58,8 +54,8 @@ ssh $SSH_OPTS "${TARGET}" "
   sudo chown -R forgejo:forgejo /srv/forgejo
 "
 
-echo "${GREEN}📁 Restoring LFS from pCloud...${NC}"
-ssh $SSH_OPTS "${TARGET}" "
+echo "Restoring LFS data from pCloud ..."
+ssh ${SSH_OPTS} "${TARGET}" "
   sudo rclone sync \
     pcloud:forgejo-lfs-backup \
     /srv/forgejo/data/lfs \
@@ -70,11 +66,11 @@ ssh $SSH_OPTS "${TARGET}" "
     --log-level INFO
 "
 
-echo "${GREEN}▶️  Starting forgejo...${NC}"
-ssh $SSH_OPTS "${TARGET}" "
+echo "Starting Forgejo ..."
+ssh ${SSH_OPTS} "${TARGET}" "
   sudo chown -R forgejo:forgejo /srv/forgejo
   sudo systemctl start forgejo
   sudo systemctl status forgejo
 "
 
-echo "${GREEN}✅ Restore complete!${NC}"
+echo "Restore complete."
