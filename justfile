@@ -1,7 +1,7 @@
 set shell := ["sh", "-cu"]
 
 PI_HOST := env_var_or_default("PI_HOST", "forgejo-pi.tail8f7f61.ts.net")
-FLASH_DEVICE := env_var_or_default("SSD_DEVICE", "/dev/disk4")
+FLASH_DEVICE := env_var_or_default("FLASH_DEVICE", "/dev/disk4")
 FLASH_IMAGE := env_var_or_default("FLASH_IMAGE", "output/nixos-pi.img")
 GOLDEN_DEVICE := env_var_or_default("GOLDEN_DEVICE", "/dev/disk4")
 GOLDEN_IMAGE := env_var_or_default("GOLDEN_IMAGE", "")
@@ -109,7 +109,7 @@ fmt-check:
 check:
   @echo "Running checks..."
   @echo "  -> Flake check..."
-  @nix flake check --no-build --all-systems 2>&1 || true
+  @nix flake check --no-build --all-systems
   @echo "  -> Statix lint..."
   @command -v statix >/dev/null 2>&1 && statix check . || echo "  - statix not installed, skipping"
   @echo "  -> Deadnix check..."

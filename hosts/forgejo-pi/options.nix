@@ -19,10 +19,6 @@
         type = lib.types.int;
         default = 512;
       };
-      repartDataSizeMin = lib.mkOption {
-        type = lib.types.str;
-        default = "1G";
-      };
     };
     bootstrap = {
       rootSizeGiB = lib.mkOption {
