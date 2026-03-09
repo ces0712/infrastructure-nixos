@@ -73,10 +73,10 @@ flash device=SSD_DEVICE:
   DEVICE={{device}} ./scripts/flash.sh
 
 golden-create:
-  GOLDEN_DEVICE={{GOLDEN_DEVICE}} GOLDEN_IMAGE={{GOLDEN_IMAGE}} ./scripts/golden-create.sh
+  DEVICE={{GOLDEN_DEVICE}} GOLDEN_IMAGE={{GOLDEN_IMAGE}} ./scripts/golden-create.sh
 
 golden-restore:
-  GOLDEN_DEVICE={{GOLDEN_DEVICE}} GOLDEN_IMAGE={{GOLDEN_IMAGE}} ./scripts/golden-restore.sh
+  DEVICE={{GOLDEN_DEVICE}} GOLDEN_IMAGE={{GOLDEN_IMAGE}} ./scripts/golden-restore.sh
 
 deploy:
   PI_HOST={{PI_HOST}} DEPLOY_USER={{DEPLOY_USER}} IDENTITY_FILE={{IDENTITY_FILE}} SOPS_AGE_KEY_FILE={{SOPS_AGE_KEY_FILE}} SOPS_AGE_KEY_PASS_ENTRY={{SOPS_AGE_KEY_PASS_ENTRY}} DEPLOY_MODE={{DEPLOY_MODE}} DEPLOY_REBOOT={{DEPLOY_REBOOT}} ./scripts/deploy.sh
