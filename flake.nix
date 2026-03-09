@@ -26,7 +26,15 @@
     sops-nix,
     ...
   }: let
+    system = "aarch64-linux";
+    specialArgs = {
+      inherit secrets raspberrypi-firmware;
+    };
     forSystem = nixpkgs.lib.genAttrs;
+    sdImageModules = [
+      "${nixpkgs}/nixos/modules/installer/sd-card/sd-image-aarch64.nix"
+      ./hosts/forgejo-pi/image.nix
+    ];
     baseModules = [
       ./hosts/forgejo-pi/common-base.nix
       ./hosts/forgejo-pi/options.nix
@@ -51,36 +59,18 @@
         ./hosts/forgejo-pi/networking.nix
         ./hosts/forgejo-pi/backup.nix
       ];
+    mkPiSystem = modules:
+      nixpkgs.lib.nixosSystem {
+        inherit system specialArgs;
+        modules = modules ++ sdImageModules;
+      };
   in {
     formatter = forSystem ["aarch64-darwin" "aarch64-linux" "x86_64-darwin" "x86_64-linux"] (system: alejandra.packages.${system}.default);
 
     # Runtime configuration for normal deploys after first boot.
-    nixosConfigurations.forgejo-pi = nixpkgs.lib.nixosSystem {
-      system = "aarch64-linux";
-      specialArgs = {
-        inherit secrets raspberrypi-firmware;
-      };
-      modules =
-        runtimeModules
-        ++ [
-          "${nixpkgs}/nixos/modules/installer/sd-card/sd-image-aarch64.nix"
-          ./hosts/forgejo-pi/image.nix
-          ./hosts/forgejo-pi/disk.nix
-        ];
-    };
+    nixosConfigurations.forgejo-pi = mkPiSystem (runtimeModules ++ [./hosts/forgejo-pi/disk.nix]);
 
     # Shared bootstrap image flashed to both the SD card and the SSD.
-    nixosConfigurations.forgejo-pi-image = nixpkgs.lib.nixosSystem {
-      system = "aarch64-linux";
-      specialArgs = {
-        inherit secrets raspberrypi-firmware;
-      };
-      modules =
-        bootstrapModules
-        ++ [
-          "${nixpkgs}/nixos/modules/installer/sd-card/sd-image-aarch64.nix"
-          ./hosts/forgejo-pi/image.nix
-        ];
-    };
+    nixosConfigurations.forgejo-pi-image = mkPiSystem bootstrapModules;
   };
 }
