@@ -93,8 +93,7 @@ and if the Pi drops off the system bus during activation it falls back to
 After reboot, deploy prints a reconnect message and exits. Reconnect manually to
 verify the new generation.
 
-If the full runtime still trips early boot, deploy the boot-safe intermediate
-profile first:
+Recovery path if the full runtime still trips early boot:
 
 ```bash
 PI_HOST=forgejo-pi.tail8f7f61.ts.net \
@@ -174,7 +173,7 @@ The SSD runtime layout expects these labels:
 | `boot-source` | Show whether the Pi is currently running from SD or SSD |
 | `validate` | Verify the SSD runtime profile, mounts, and core services |
 | `deploy` | Deploy runtime configuration (`forgejo-pi` by default) |
-| `deploy-core` | Deploy the boot-safe intermediate runtime profile (`forgejo-pi-core`) |
+| `deploy-core` | Recovery path: deploy the boot-safe intermediate runtime profile (`forgejo-pi-core`) |
 | `restore` | Restore Forgejo data from backups |
 | `fmt` | Format Nix files |
 | `fmt-check` | Check formatting without changes |
@@ -214,8 +213,8 @@ separate repository: `infrastructure-secrets`
 - **Restic → Borgbase**: Daily append-only backups (repositories, custom files,
 database)
 - **Rclone → pCloud**: Weekly LFS object backups
-- **Golden SSD image (optional)**: Offline compressed image captured from a
-  known-good SSD
+- **Golden SSD image (optional recovery)**: Offline compressed image captured
+  from a known-good SSD
 
 ## Troubleshooting
 
