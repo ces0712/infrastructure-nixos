@@ -7,10 +7,11 @@ PI_HOST="${PI_HOST:?PI_HOST is required}"
 DEPLOY_USER="${DEPLOY_USER:-nixos}"
 IDENTITY_FILE="${IDENTITY_FILE:-}"
 
-TARGET="$(target_host "${DEPLOY_USER}" "${PI_HOST}")"
-SSH_OPTS="$(standard_ssh_opts "${IDENTITY_FILE}")"
+ssh_ctx="$(ssh_target "${DEPLOY_USER}" "${PI_HOST}" "${IDENTITY_FILE}")"
+SSH_OPTS="${ssh_ctx%%|*}"
+TARGET="${ssh_ctx#*|}"
 
-ssh ${SSH_OPTS} "${TARGET}" '
+remote_run "${SSH_OPTS}" "${TARGET}" '
 set -eu
 
 if [ "$(id -u)" -ne 0 ]; then

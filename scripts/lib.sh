@@ -1,5 +1,10 @@
 #!/bin/sh
 
+die() {
+  echo "$*" >&2
+  exit 1
+}
+
 target_host() {
   user="$1"
   host="$2"
@@ -43,4 +48,28 @@ confirm_continue() {
   prompt="${1:-Press ENTER to continue or Ctrl+C to abort}"
   echo "${prompt}"
   read -r
+}
+
+ssh_target() {
+  user="$1"
+  host="$2"
+  identity_file="${3:-}"
+  printf '%s\n' "$(standard_ssh_opts "${identity_file}")|$(target_host "${user}" "${host}")"
+}
+
+remote_run() {
+  ssh_opts="$1"
+  target="$2"
+  shift 2
+  ssh ${ssh_opts} "${target}" "$@"
+}
+
+remote_wait_for_ssh() {
+  ssh_opts="$1"
+  target="$2"
+
+  until remote_run "${ssh_opts}" "${target}" true 2>/dev/null; do
+    echo "Retrying..."
+    sleep 5
+  done
 }
