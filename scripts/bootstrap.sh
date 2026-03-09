@@ -21,22 +21,11 @@ echo "  ${SSD_DEVICE}3 -> NIXOS_DATA"
 
 ssh_opts="$(standard_ssh_opts "${IDENTITY_FILE}")"
 
-ssh ${ssh_opts} "${TARGET}" \
-  SSD_DEVICE="${SSD_DEVICE}" ROOT_SIZE_GIB="${ROOT_SIZE_GIB}" BOOTSTRAP_POWEROFF="${BOOTSTRAP_POWEROFF}" \
-  'sh -s' <<'EOF'
-set -eu
-
-if [ "$(id -u)" -ne 0 ]; then
-  exec sudo env \
-    SSD_DEVICE="${SSD_DEVICE}" \
-    ROOT_SIZE_GIB="${ROOT_SIZE_GIB}" \
-    BOOTSTRAP_POWEROFF="${BOOTSTRAP_POWEROFF}" \
-    forgejo-pi-bootstrap-partition
+remote_prefix="env SSD_DEVICE='${SSD_DEVICE}' ROOT_SIZE_GIB='${ROOT_SIZE_GIB}' BOOTSTRAP_POWEROFF='${BOOTSTRAP_POWEROFF}'"
+if [ "${BOOTSTRAP_USER}" = "root" ]; then
+  remote_cmd="${remote_prefix} forgejo-pi-bootstrap-partition"
 else
-  exec env \
-    SSD_DEVICE="${SSD_DEVICE}" \
-    ROOT_SIZE_GIB="${ROOT_SIZE_GIB}" \
-    BOOTSTRAP_POWEROFF="${BOOTSTRAP_POWEROFF}" \
-    forgejo-pi-bootstrap-partition
+  remote_cmd="sudo ${remote_prefix} forgejo-pi-bootstrap-partition"
 fi
-EOF
+
+ssh ${ssh_opts} "${TARGET}" "${remote_cmd}"

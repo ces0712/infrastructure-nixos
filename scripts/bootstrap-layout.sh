@@ -1,9 +1,15 @@
 #!/bin/sh
 set -eu
 
-disk="${SSD_DEVICE:-/dev/sda}"
-root_size_gib="${ROOT_SIZE_GIB:?ROOT_SIZE_GIB is required}"
-poweroff_after="${BOOTSTRAP_POWEROFF:-1}"
+config_file="${BOOTSTRAP_CONFIG_FILE:-/etc/forgejo-pi-bootstrap.env}"
+if [ -f "${config_file}" ]; then
+  # shellcheck disable=SC1090
+  . "${config_file}"
+fi
+
+disk="${SSD_DEVICE:-${BOOTSTRAP_SSD_DEVICE:-/dev/sda}}"
+root_size_gib="${ROOT_SIZE_GIB:-${BOOTSTRAP_ROOT_SIZE_GIB:?BOOTSTRAP_ROOT_SIZE_GIB is required}}"
+poweroff_after="${BOOTSTRAP_POWEROFF:-${BOOTSTRAP_POWEROFF_DEFAULT:-1}}"
 
 boot_label="${BOOTSTRAP_BOOT_LABEL:?BOOTSTRAP_BOOT_LABEL is required}"
 root_label="${BOOTSTRAP_ROOT_LABEL:?BOOTSTRAP_ROOT_LABEL is required}"
