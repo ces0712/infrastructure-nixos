@@ -1,7 +1,7 @@
 #!/bin/sh
 set -eu
 
-. "$(dirname "$0")/libmedia.sh"
+. "$(dirname "$0")/lib.sh"
 
 DEVICE="${DEVICE:-${SSD_DEVICE:-/dev/disk4}}"
 IMAGE_PATH="${IMAGE_PATH:-output/nixos-pi.img}"

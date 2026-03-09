@@ -1,7 +1,7 @@
 #!/bin/sh
 set -eu
 
-. "$(dirname "$0")/libssh.sh"
+. "$(dirname "$0")/lib.sh"
 
 PI_HOST="${PI_HOST:?PI_HOST is required}"
 DEPLOY_USER="${DEPLOY_USER:-nixos}"

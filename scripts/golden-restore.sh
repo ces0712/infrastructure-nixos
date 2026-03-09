@@ -1,7 +1,7 @@
 #!/bin/sh
 set -eu
 
-. "$(dirname "$0")/libmedia.sh"
+. "$(dirname "$0")/lib.sh"
 
 DEVICE="${DEVICE:-${GOLDEN_DEVICE:-/dev/disk4}}"
 GOLDEN_IMAGE="${GOLDEN_IMAGE:-}"
