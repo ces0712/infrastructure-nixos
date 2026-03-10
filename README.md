@@ -45,7 +45,11 @@ PI_HOST=forgejo-pi.tail8f7f61.ts.net just deploy
 # 9. Validate that the SSD runtime is stable
 PI_HOST=forgejo-pi.tail8f7f61.ts.net just validate
 
-# 10. Restore data from backups (optional)
+# 10. Validate backup and restore readiness (optional)
+PI_HOST=forgejo-pi.tail8f7f61.ts.net just backup-validate
+PI_HOST=forgejo-pi.tail8f7f61.ts.net just restore-check
+
+# 11. Restore data from backups (optional, destructive)
 PI_HOST=forgejo-pi.tail8f7f61.ts.net just restore
 ```
 
@@ -82,19 +86,15 @@ SOPS_AGE_KEY_FILE=~/.config/sops/age/keys.txt \
 just deploy
 ```
 
-`just deploy` defaults to `DEPLOY_MODE=auto`: it tries a live `switch` first,
-and if the Pi drops off the system bus during activation it falls back to
-`boot` plus a reboot into the new generation.
+`just deploy` always stages the new generation with `nixos-rebuild boot`, then
+reboots by default. After reboot, reconnect manually to verify the new
+generation.
 
-After reboot, deploy prints a reconnect message and exits. Reconnect manually to
-verify the new generation.
-
-To stage a `boot` deployment without rebooting immediately, use:
+To stage the deployment without rebooting immediately, use:
 
 ```bash
 PI_HOST=forgejo-pi.tail8f7f61.ts.net \
 IDENTITY_FILE=~/.ssh/id_ed25519 \
-DEPLOY_MODE=boot \
 DEPLOY_REBOOT=0 \
 just deploy
 ```
@@ -171,6 +171,8 @@ The SSD runtime layout expects these labels:
 | `flash` | Thin local wrapper around `diskutil` + `dd` |
 | `boot-source` | Show whether the Pi is currently running from SD or SSD |
 | `validate` | Verify the SSD runtime profile, mounts, and core services |
+| `backup-validate` | Verify backup timers, secrets, and access to Borgbase/pCloud |
+| `restore-check` | Verify restore prerequisites without changing live data |
 | `deploy` | Deploy the Forgejo runtime configuration |
 | `restore` | Restore Forgejo data from backups |
 | `fmt` | Format Nix files |
@@ -214,6 +216,21 @@ database)
 - **Golden SSD image (optional recovery)**: Offline compressed image captured
   from a known-good SSD
 
+## Backup / Restore Validation
+
+Use these commands before relying on backup or restore in production:
+
+```bash
+PI_HOST=forgejo-pi.tail8f7f61.ts.net just backup-validate
+PI_HOST=forgejo-pi.tail8f7f61.ts.net just restore-check
+```
+
+Run the real restore only after both checks pass:
+
+```bash
+PI_HOST=forgejo-pi.tail8f7f61.ts.net just restore
+```
+
 ## Troubleshooting
 
 ### SSD preparation flow
@@ -230,6 +247,7 @@ The supported flow is:
 The full runtime now mounts `NIXOS_DATA` at `/srv` instead of replacing
 `/var/lib`. Forgejo state lives under `/srv/forgejo` and backup state under
 `/srv/restic-backup`, while system `/var/lib` stays on the root filesystem.
+Backup secrets themselves stay under `/run/secrets`, not on `/srv`.
 
 ### First boot SSH access
 

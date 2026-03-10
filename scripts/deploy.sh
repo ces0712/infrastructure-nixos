@@ -20,7 +20,6 @@ IDENTITY_FILE="${IDENTITY_FILE:-}"
 SOPS_AGE_KEY_FILE="${SOPS_AGE_KEY_FILE:-}"
 SOPS_AGE_KEY="${SOPS_AGE_KEY:-}"
 SOPS_AGE_KEY_PASS_ENTRY="${SOPS_AGE_KEY_PASS_ENTRY:-sops/age-key}"
-DEPLOY_MODE="${DEPLOY_MODE:-auto}"
 DEPLOY_REBOOT="${DEPLOY_REBOOT:-1}"
 
 TARGET="${DEPLOY_USER}@${PI_HOST}"
@@ -121,10 +120,9 @@ else
 fi
 
 run_rebuild() {
-  action="$1"
   export NIX_SSHOPTS="${SSH_OPTS}"
   nix run nixpkgs#nixos-rebuild -- \
-    "${action}" --flake ".#forgejo-pi" \
+    boot --flake ".#forgejo-pi" \
     --target-host "${TARGET}" \
     --build-host "${TARGET}" \
     ${SUDO_FLAG}
@@ -152,24 +150,5 @@ handle_boot_reboot() {
   fi
 }
 
-case "${DEPLOY_MODE}" in
-  switch)
-    run_rebuild switch
-    ;;
-  boot)
-    run_rebuild boot
-    handle_boot_reboot
-    ;;
-  auto)
-    if run_rebuild switch; then
-      :
-    else
-      echo "Live switch failed; falling back to boot + reboot." >&2
-      run_rebuild boot
-      handle_boot_reboot
-    fi
-    ;;
-  *)
-    die "Unsupported DEPLOY_MODE: ${DEPLOY_MODE}. Expected one of: auto, switch, boot"
-    ;;
-esac
+run_rebuild
+handle_boot_reboot

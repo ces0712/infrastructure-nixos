@@ -20,8 +20,6 @@
 
   systemd.tmpfiles.rules = [
     "d ${config.forgejo-pi.backupStateDir} 0750 restic-backup restic-backup -"
-    "d ${config.forgejo-pi.backupStateDir}/.config 0750 restic-backup restic-backup -"
-    "d ${config.forgejo-pi.backupStateDir}/.config/rclone 0750 restic-backup restic-backup -"
   ];
 
   services.restic.backups.borgbase = {
@@ -69,8 +67,8 @@
   # ============================================================
   systemd.services.rclone-pcloud-backup = {
     description = "Rclone LFS backup to pCloud";
-    after = ["network-online.target" "sops-install-secrets.service"];
-    requires = ["network-online.target" "sops-install-secrets.service"];
+    after = ["network-online.target"];
+    wants = ["network-online.target"];
 
     serviceConfig = {
       Type = "oneshot";
@@ -78,6 +76,7 @@
       # cache dir for rclone checksums
       CacheDirectory = "rclone-pcloud";
       CacheDirectoryMode = "0700";
+      ConditionPathExists = config.sops.secrets."rclone/pcloud_config".path;
     };
 
     script = ''

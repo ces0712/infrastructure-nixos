@@ -10,7 +10,6 @@ IDENTITY_FILE := env_var_or_default("IDENTITY_FILE", "")
 DEPLOY_USER := env_var_or_default("DEPLOY_USER", "nixos")
 SOPS_AGE_KEY_FILE := env_var_or_default("SOPS_AGE_KEY_FILE", "")
 SOPS_AGE_KEY_PASS_ENTRY := env_var_or_default("SOPS_AGE_KEY_PASS_ENTRY", "sops/age-key")
-DEPLOY_MODE := env_var_or_default("DEPLOY_MODE", "auto")
 DEPLOY_REBOOT := env_var_or_default("DEPLOY_REBOOT", "1")
 BOOTSTRAP_POWEROFF := env_var_or_default("BOOTSTRAP_POWEROFF", "1")
 REMOTE_SSD_DEVICE := env_var_or_default("REMOTE_SSD_DEVICE", "/dev/sda")
@@ -26,6 +25,8 @@ help:
   @echo "  just flash        -> thin local wrapper around diskutil + dd"
   @echo "  just boot-source  -> shows whether the Pi is booted from SD or SSD"
   @echo "  just validate     -> verifies the SSD runtime is healthy"
+  @echo "  just backup-validate -> verifies backup units, secrets, and remote repository access"
+  @echo "  just restore-check -> dry-run restore readiness check without changing live data"
   @echo "  just bootstrap    -> from SD boot, resize flashed SSD root and create the data partition"
   @echo "  just deploy       -> deploy the Forgejo runtime to Pi (remote build)"
   @echo "  just restore      -> restores forgejo data from backups"
@@ -39,6 +40,7 @@ help:
   @echo "  just check        -> lint and validate configuration"
   @echo "  just build-eval   -> evaluate NixOS configuration"
   @echo "  just build-dry    -> dry-run build showing changes"
+  @echo "  just flush-dns    -> flush macOS DNS cache after Tailscale/IP changes"
   @echo "  just clean-cache  -> clear podman nix cache volume"
   @echo "  just ci           -> run all checks locally"
   @echo ""
@@ -53,7 +55,6 @@ help:
   @echo "  IDENTITY_FILE=<path>  -> optional SSH key for bootstrap/deploy"
   @echo "  SOPS_AGE_KEY_FILE=<path> -> optional age key file for deploy"
   @echo "  SOPS_AGE_KEY_PASS_ENTRY=<entry> -> default: sops/age-key"
-  @echo "  DEPLOY_MODE=<auto|switch|boot> -> default: auto"
   @echo "  DEPLOY_REBOOT=<1|0> -> default: 1"
   @echo "  REMOTE_SSD_DEVICE=<device> -> default: /dev/sda"
   @echo "  ROOT_SIZE_GIB=<gib> -> default: 200"
@@ -80,7 +81,7 @@ golden-restore device=GOLDEN_DEVICE image=GOLDEN_IMAGE:
   DEVICE={{device}} GOLDEN_IMAGE={{image}} ./scripts/golden-restore.sh
 
 deploy:
-  PI_HOST={{PI_HOST}} DEPLOY_USER={{DEPLOY_USER}} IDENTITY_FILE={{IDENTITY_FILE}} SOPS_AGE_KEY_FILE={{SOPS_AGE_KEY_FILE}} SOPS_AGE_KEY_PASS_ENTRY={{SOPS_AGE_KEY_PASS_ENTRY}} DEPLOY_MODE={{DEPLOY_MODE}} DEPLOY_REBOOT={{DEPLOY_REBOOT}} ./scripts/deploy.sh
+  PI_HOST={{PI_HOST}} DEPLOY_USER={{DEPLOY_USER}} IDENTITY_FILE={{IDENTITY_FILE}} SOPS_AGE_KEY_FILE={{SOPS_AGE_KEY_FILE}} SOPS_AGE_KEY_PASS_ENTRY={{SOPS_AGE_KEY_PASS_ENTRY}} DEPLOY_REBOOT={{DEPLOY_REBOOT}} ./scripts/deploy.sh
 
 bootstrap:
   PI_HOST={{PI_HOST}} BOOTSTRAP_USER={{BOOTSTRAP_USER}} IDENTITY_FILE={{IDENTITY_FILE}} SSD_DEVICE={{REMOTE_SSD_DEVICE}} ROOT_SIZE_GIB={{ROOT_SIZE_GIB}} BOOTSTRAP_POWEROFF={{BOOTSTRAP_POWEROFF}} ./scripts/bootstrap.sh
@@ -92,6 +93,12 @@ boot-source:
 
 validate:
   PI_HOST={{PI_HOST}} DEPLOY_USER={{DEPLOY_USER}} IDENTITY_FILE={{IDENTITY_FILE}} ./scripts/validate.sh
+
+backup-validate:
+  PI_HOST={{PI_HOST}} DEPLOY_USER={{DEPLOY_USER}} IDENTITY_FILE={{IDENTITY_FILE}} ./scripts/backup-validate.sh
+
+restore-check:
+  PI_HOST={{PI_HOST}} DEPLOY_USER={{DEPLOY_USER}} IDENTITY_FILE={{IDENTITY_FILE}} RESTORE_DRY_RUN=1 ./scripts/restore.sh
 
 restore:
   PI_HOST={{PI_HOST}} DEPLOY_USER={{DEPLOY_USER}} IDENTITY_FILE={{IDENTITY_FILE}} ./scripts/restore.sh
@@ -127,6 +134,9 @@ build-dry:
   @echo "Dry-run build (showing changes)..."
   @nix build .#nixosConfigurations.forgejo-pi.config.system.build.toplevel --no-link --dry-run
   @echo "Dry-run complete"
+
+flush-dns:
+  sudo dscacheutil -flushcache && sudo killall -HUP mDNSResponder
 
 clean-cache:
   @echo "Cleaning Podman Nix cache volume..."

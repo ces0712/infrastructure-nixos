@@ -8,6 +8,14 @@
   forgejoPort = 3000;
   forgejoSSHPort = 2222;
 in {
+  environment.systemPackages = [
+    (pkgs.writeShellScriptBin "gitea" ''
+      exec ${config.services.forgejo.package}/bin/gitea \
+        --config ${config.services.forgejo.stateDir}/custom/conf/app.ini \
+        "$@"
+    '')
+  ];
+
   services.forgejo = {
     enable = true;
     stateDir = config.forgejo-pi.forgejoStateDir;

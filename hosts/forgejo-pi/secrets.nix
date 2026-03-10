@@ -36,7 +36,6 @@
     "rclone/pcloud_config" = {
       owner = "restic-backup";
       group = "restic-backup";
-      path = "${config.forgejo-pi.backupStateDir}/.config/rclone/rclone.conf";
       mode = "0600";
     };
   };
