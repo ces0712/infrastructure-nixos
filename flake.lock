@@ -136,11 +136,11 @@
     "secrets": {
       "flake": false,
       "locked": {
-        "lastModified": 1773189935,
-        "narHash": "sha256-QkN75pFp2WiMKYNnZBl4thyT3p4IXZTmL7FoFarxgkE=",
+        "lastModified": 1773199004,
+        "narHash": "sha256-zbp+yXgp2rhCEF/P23LFhNajoGr43VGfXbuJ5/WPR/8=",
         "ref": "refs/heads/main",
-        "rev": "4811f04899cb5bf556a52640e876e7e43e5506be",
-        "revCount": 15,
+        "rev": "ade83e814afb5002ea5ee1029ab5d37dd0a92d44",
+        "revCount": 16,
         "type": "git",
         "url": "ssh://git@github.com/ces0712/infrastructure-secrets.git"
       },
