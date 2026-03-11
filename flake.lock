@@ -136,11 +136,11 @@
     "secrets": {
       "flake": false,
       "locked": {
-        "lastModified": 1772408000,
-        "narHash": "sha256-oKThHhNI93liLooydt9vaKtcx1bv/sZg2OYdtMyv6ns=",
+        "lastModified": 1773189935,
+        "narHash": "sha256-QkN75pFp2WiMKYNnZBl4thyT3p4IXZTmL7FoFarxgkE=",
         "ref": "refs/heads/main",
-        "rev": "0fd2a0e26dd5cd172502b7138409ad6fb673d5bb",
-        "revCount": 14,
+        "rev": "4811f04899cb5bf556a52640e876e7e43e5506be",
+        "revCount": 15,
         "type": "git",
         "url": "ssh://git@github.com/ces0712/infrastructure-secrets.git"
       },
@@ -156,11 +156,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1772401007,
-        "narHash": "sha256-YHykQg0h9hrlZGpMcywnaFzQ1Kn/5YNCCOSaaAl6z7Q=",
+        "lastModified": 1773096132,
+        "narHash": "sha256-M3zEnq9OElB7zqc+mjgPlByPm1O5t2fbUrH3t/Hm5Ag=",
         "owner": "Mic92",
         "repo": "sops-nix",
-        "rev": "d8be5ea4cd3bc363492ab5bc6e874ccdc5465fe4",
+        "rev": "d1ff3b1034d5bab5d7d8086a7803c5a5968cd784",
         "type": "github"
       },
       "original": {
