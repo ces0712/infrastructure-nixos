@@ -38,6 +38,11 @@
       type = lib.types.str;
       default = "/srv/restic-backup";
     };
+    forgejoHttpAddr = lib.mkOption {
+      type = lib.types.str;
+      default = "127.0.0.1";
+      description = "Bind address for the Forgejo HTTP listener.";
+    };
     dbPath = lib.mkOption {
       type = lib.types.str;
       default = "/srv/forgejo/data/forgejo.db";

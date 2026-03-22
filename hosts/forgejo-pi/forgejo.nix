@@ -44,7 +44,8 @@ in {
       database.LOG_SQL = false;
       server = {
         DOMAIN = forgejoHost;
-        ROOT_URL = "http://${forgejoHost}:${toString forgejoPort}";
+        ROOT_URL = "https://${forgejoHost}";
+        HTTP_ADDR = config.forgejo-pi.forgejoHttpAddr;
         HTTP_PORT = forgejoPort;
         SSH_DOMAIN = forgejoHost;
         SSH_PORT = forgejoSSHPort;

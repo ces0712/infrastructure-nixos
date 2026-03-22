@@ -90,6 +90,16 @@ just deploy
 reboots by default. After reboot, reconnect manually to verify the new
 generation.
 
+The runtime exposes Forgejo over Tailscale Serve:
+
+- Forgejo listens on `127.0.0.1:3000`
+- Tailscale Serve terminates HTTPS on the tailnet hostname
+- the canonical web URL is `https://forgejo-pi.tail8f7f61.ts.net`
+
+Prerequisite:
+
+- enable MagicDNS and HTTPS certificates in the Tailscale admin console
+
 To stage the deployment without rebooting immediately, use:
 
 ```bash
@@ -204,9 +214,32 @@ separate repository: `infrastructure-secrets`
 
 | Service | Port | Description |
 |---------|------|-------------|
-| Forgejo | 3000 | Git repository hosting |
+| Forgejo | 3000 | Local Forgejo backend bound to localhost |
 | Forgejo SSH | 2222 | Git SSH access |
 | Tailscale | 41641 | VPN networking |
+| Tailscale Serve | 443 | HTTPS entrypoint on the tailnet hostname |
+
+## GitHub Push Mirror
+
+Forgejo is the canonical source of truth. GitHub is a downstream push mirror.
+
+Use a native Forgejo push mirror with:
+
+- repository URL: `https://github.com/<owner>/<repo>.git`
+- username: your GitHub user or machine user
+- password: a fine-grained GitHub token with write access to the target repo
+
+This avoids the current Forgejo SSH mirror limitations while keeping Forgejo as
+the primary remote.
+
+Per repository:
+
+1. Create the destination repository in GitHub.
+2. Create a fine-grained GitHub token scoped to that repository with write
+   access.
+3. In Forgejo repository settings, add a push mirror using the GitHub HTTPS
+   URL and the token credentials.
+4. Push a test commit to Forgejo and confirm it appears in GitHub.
 
 ## Backup Strategy
 

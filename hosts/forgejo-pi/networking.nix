@@ -77,6 +77,29 @@
     ignoreregex =
   '';
 
+  systemd.services.tailscale-serve-forgejo = {
+    description = "Expose Forgejo over Tailscale Serve";
+    after = [
+      "forgejo.service"
+      "tailscaled.service"
+      "network-online.target"
+    ];
+    wants = [
+      "forgejo.service"
+      "tailscaled.service"
+      "network-online.target"
+    ];
+    wantedBy = ["multi-user.target"];
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+      ExecStart = "${config.services.tailscale.package}/bin/tailscale serve --bg 127.0.0.1:3000";
+      Restart = "on-failure";
+      RestartSec = "10s";
+      ExecStop = "${config.services.tailscale.package}/bin/tailscale serve reset";
+    };
+  };
+
   # ============================================================
   # Sudo
   # ============================================================
