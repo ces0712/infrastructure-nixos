@@ -164,8 +164,8 @@
   # ============================================================
   # Watchdog
   # ============================================================
-  systemd.extraConfig = ''
-    RuntimeWatchdogSec=30s
-    RebootWatchdogSec=10min
-  '';
+  systemd.settings.Manager = {
+    RuntimeWatchdogSec = "30s";
+    RebootWatchdogSec = "10min";
+  };
 }

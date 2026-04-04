@@ -2,7 +2,7 @@
   description = "NixOS infrastructure for Raspberry Pi 4 with Forgejo";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-25.05";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-25.11";
     alejandra.url = "github:kamadorueda/alejandra";
     raspberrypi-firmware = {
       url = "github:raspberrypi/firmware/1.20250915";
