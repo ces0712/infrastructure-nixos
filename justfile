@@ -14,6 +14,8 @@ DEPLOY_REBOOT := env_var_or_default("DEPLOY_REBOOT", "1")
 BOOTSTRAP_POWEROFF := env_var_or_default("BOOTSTRAP_POWEROFF", "1")
 REMOTE_SSD_DEVICE := env_var_or_default("REMOTE_SSD_DEVICE", "/dev/sda")
 ROOT_SIZE_GIB := env_var_or_default("ROOT_SIZE_GIB", "200")
+RUNNER_CONFIG_FILE := env_var_or_default("RUNNER_CONFIG_FILE", "$HOME/.config/forgejo-runner/config.yml")
+RUNNER_STATE_DIR := env_var_or_default("RUNNER_STATE_DIR", "$HOME/.local/share/forgejo-runner")
 
 default: help
 
@@ -42,6 +44,8 @@ help:
   @echo "  just build-dry    -> dry-run build showing changes"
   @echo "  just flush-dns    -> flush macOS DNS cache after Tailscale/IP changes"
   @echo "  just clean-cache  -> clear podman nix cache volume"
+  @echo "  just runner-daemon -> run the Forgejo runner daemon manually"
+  @echo "  just runner-status -> show runner files and whether the daemon is running"
   @echo "  just ci           -> run all checks locally"
   @echo ""
   @echo "Variables:"
@@ -59,6 +63,8 @@ help:
   @echo "  REMOTE_SSD_DEVICE=<device> -> default: /dev/sda"
   @echo "  ROOT_SIZE_GIB=<gib> -> default: 200"
   @echo "  BOOTSTRAP_POWEROFF=<1|0> -> default: 1"
+  @echo "  RUNNER_CONFIG_FILE=<path> -> default: $HOME/.config/forgejo-runner/config.yml"
+  @echo "  RUNNER_STATE_DIR=<path> -> default: $HOME/.local/share/forgejo-runner"
 
 image-build: ci
   @echo "Running CI checks before build..."
@@ -144,6 +150,17 @@ clean-cache:
   @echo "Current Podman VM disk usage:"
   @podman machine ssh "df -h /var | tail -n +2"
   @echo "Cache cleanup complete"
+
+runner-daemon:
+  @test -f "{{RUNNER_CONFIG_FILE}}" || (echo "Missing runner config: {{RUNNER_CONFIG_FILE}}" && exit 1)
+  @test -d "{{RUNNER_STATE_DIR}}" || (echo "Missing runner state dir: {{RUNNER_STATE_DIR}}" && exit 1)
+  @cd "{{RUNNER_STATE_DIR}}" && forgejo-runner daemon --config "{{RUNNER_CONFIG_FILE}}"
+
+runner-status:
+  @echo "Config: {{RUNNER_CONFIG_FILE}}"
+  @echo "State dir: {{RUNNER_STATE_DIR}}"
+  @ls -la "{{RUNNER_STATE_DIR}}" 2>/dev/null || true
+  @pgrep -fl "forgejo-runner daemon" || echo "forgejo-runner daemon not running"
 
 ci: fmt-check check build-eval build-dry
   @echo "CI verification passed locally"
