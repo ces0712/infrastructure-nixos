@@ -24,6 +24,11 @@ profile="$(cat /etc/forgejo-pi-profile)"
 root_source="$(findmnt -n -o SOURCE /)"
 root_disk="$(lsblk -no PKNAME "${root_source}" 2>/dev/null || true)"
 srv_source="$(findmnt -n -o SOURCE /srv 2>/dev/null || true)"
+forgejo_data_dir="/srv/forgejo/data"
+forgejo_data_present="no"
+if $SUDO test -d "${forgejo_data_dir}"; then
+  forgejo_data_present="yes"
+fi
 sshd_state="$($SUDO systemctl is-active sshd || true)"
 tailscaled_state="$($SUDO systemctl is-active tailscaled || true)"
 tailscale_serve_state="$($SUDO systemctl is-active tailscale-serve-forgejo || true)"
@@ -34,6 +39,7 @@ echo "profile: ${profile}"
 echo "root-source: ${root_source}"
 echo "root-disk: ${root_disk:-unknown}"
 echo "srv-source: ${srv_source:-not-mounted}"
+echo "forgejo-data: ${forgejo_data_present} (${forgejo_data_dir})"
 echo "sshd: ${sshd_state}"
 echo "tailscaled: ${tailscaled_state}"
 echo "tailscale-serve: ${tailscale_serve_state}"
@@ -48,5 +54,13 @@ test -n "${srv_source}"
 test "${sshd_state}" = "active"
 test "${tailscaled_state}" = "active"
 test "${tailscale_serve_state}" = "active"
-test "${forgejo_state}" = "active"
+if [ "${forgejo_data_present}" = "yes" ]; then
+  test "${forgejo_state}" = "active"
+else
+  if [ "${forgejo_state}" = "active" ]; then
+    echo "Forgejo data is not present yet, but forgejo.service is already active."
+  else
+    echo "Forgejo data is not present yet; allowing forgejo.service to remain inactive before restore."
+  fi
+fi
 '

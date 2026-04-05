@@ -25,7 +25,8 @@ if [ "${RESTORE_DRY_RUN}" = "1" ]; then
     sudo test -f /run/secrets/restic/borgbase_repo
     sudo test -f /run/secrets/restic/borgbase_password
     sudo test -f ${RCLONE_CONFIG_PATH}
-    sudo -u restic-backup restic snapshots \
+    sudo install -d -m 750 -o restic-backup -g restic-backup /srv/restic-backup
+    sudo -u restic-backup env XDG_CACHE_HOME=/srv/restic-backup restic snapshots \
       --repository-file /run/secrets/restic/borgbase_repo \
       --password-file /run/secrets/restic/borgbase_password \
       --compact
@@ -35,7 +36,12 @@ if [ "${RESTORE_DRY_RUN}" = "1" ]; then
     else
       echo 'LFS backup path not found: pcloud:forgejo-lfs-backup (skipping LFS restore check)'
     fi
-    sudo ls -ld /srv/forgejo /srv/forgejo/data /srv/restic-backup
+    sudo ls -ld /srv /srv/restic-backup
+    if sudo test -d /srv/forgejo; then
+      sudo ls -ld /srv/forgejo /srv/forgejo/data
+    else
+      echo '/srv/forgejo does not exist yet; this is expected before the first restore.'
+    fi
   "
   echo "Restore readiness check complete."
   exit 0

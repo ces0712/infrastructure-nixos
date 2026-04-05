@@ -10,9 +10,11 @@
   boot = {
     kernelPackages = pkgs.${config.forgejo-pi.kernelPackages};
 
-    kernelParams = [
-      "console=tty1"
+    kernelParams = lib.mkForce [
+      # Keep serial logs available, but leave the Linux primary console on HDMI.
       "console=ttyAMA0,115200n8"
+      "console=tty1"
+      "consoleblank=0"
       "rootwait"
       "rootdelay=10"
       "loglevel=7"

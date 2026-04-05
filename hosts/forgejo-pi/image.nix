@@ -3,7 +3,6 @@
   # leave spare SSD capacity for the remote partitioning step.
   sdImage = {
     compressImage = false;
-    populateRootCommands = "";
     expandOnBoot = false;
     firmwareSize = config.forgejo-pi.image.firmwareSizeMiB;
   };
