@@ -26,6 +26,9 @@
 
     consoleLogLevel = 7;
 
+    # No ZFS root; explicit forward-compat with nixos-26.11 default flip.
+    zfs.forceImportRoot = lib.mkForce false;
+
     kernelModules = [
       "bcm2835_wdt"
     ];

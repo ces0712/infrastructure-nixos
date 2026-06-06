@@ -62,6 +62,9 @@ in {
         SECRET_KEY_FILE = config.sops.secrets."forgejo/secret_key".path;
         INTERNAL_TOKEN_FILE = config.sops.secrets."forgejo/internal_token".path;
       };
+      session = {
+        COOKIE_REMEMBER_NAME = "gitea_incredible";
+      };
     };
   };
 
