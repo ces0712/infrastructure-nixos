@@ -339,6 +339,60 @@ The runtime system expects a stable key at:
 
 If none of those resolve, deploy stops before activation.
 
+### Tailscale DNS and nix cache access
+
+`nixos-rebuild` runs on the Pi (with `--build-host`) and downloads new
+closure paths from `cache.nixos.org`. The Pi resolves DNS via
+`networking.nameservers`, which includes MagicDNS (`100.100.100.100`) for
+tailnet names plus `1.1.1.1` and `8.8.8.8` for external lookups. This is
+managed directly here so the nix cache is reachable regardless of Tailscale
+admin DNS configuration. Note: `tailscale.extraUpFlags` intentionally does
+not include `--accept-dns`.
+
+#### Why `--accept-dns` is dropped
+
+Tailscale 1.98.1 (May 13, 2026) shipped a known regression in the
+interaction between Tailscale and MagicDNS on Linux (the Linux release was
+withdrawn). 1.98.2 (May 15) only partially patched it. Combined with
+Tailscale's resolvconf hook overwriting `/etc/resolv.conf`, this left the
+Pi unable to reach `cache.nixos.org` after the nixpkgs 25.11 → 26.05 bump
+(which brought Tailscale 1.90.9 → 1.98.2).
+
+The fix here is to manage DNS entirely through `networking.nameservers`
+and keep Tailscale out of resolv.conf. This works on any Tailscale version
+and does not depend on Tailscale admin DNS configuration.
+
+#### To restore `--accept-dns` later
+
+When the Tailscale Linux MagicDNS regression is fully resolved and the
+local Linux client behaves the way it did in 1.90.x, you can:
+
+1. Add `"--accept-dns"` back to `tailscale.extraUpFlags` in `networking.nix`
+2. Remove `100.100.100.100` from `networking.nameservers` in `hardware.nix`
+3. Verify your Tailscale admin tailnet has global nameservers configured
+   so MagicDNS forwards external lookups, OR add them in admin
+4. Redeploy and confirm `cache.nixos.org` still resolves on the Pi
+
+Track Tailscale upgrades via the package version in nixpkgs; do not pin
+unless a regression is confirmed.
+
+### Local host nix config warnings
+
+The deploy runs `nix run nixpkgs#nixos-rebuild` on the local host first,
+and the local Nix CLI may print:
+
+```
+warning: unknown setting 'eval-cores'
+warning: unknown setting 'lazy-trees'
+```
+
+These come from the local host's `/etc/nix/nix.conf` (Determinate Nix sets
+both by default for performance). They are harmless: the values are
+deprecated aliases in current Nix and the warnings do not affect the build.
+To silence them, remove the two lines from the local `/etc/nix/nix.conf`
+or override them in `~/.config/nix/nix.conf` (set
+`eval-cores = 0` and drop `lazy-trees`).
+
 ### View logs
 
 ```bash

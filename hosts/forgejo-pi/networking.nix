@@ -8,8 +8,11 @@
       openFirewall = true;
       authKeyFile = config.sops.secrets."tailscale/auth_key".path;
       useRoutingFeatures = "server";
+      # TODO: add "--accept-dns" back here and remove the
+      # networking.nameservers block in hosts/forgejo-pi/hardware.nix once
+      # the Tailscale Linux MagicDNS regression (introduced in 1.98.1) is
+      # fully fixed upstream.
       extraUpFlags = [
-        "--accept-dns"
         "--accept-routes"
         "--hostname=forgejo-pi"
       ];

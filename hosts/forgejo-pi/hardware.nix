@@ -92,6 +92,15 @@
     };
   };
 
+  # TODO: remove this nameservers block and restore --accept-dns in
+  # hosts/forgejo-pi/networking.nix once the Tailscale Linux MagicDNS
+  # regression (introduced in 1.98.1) is fully fixed upstream.
+  networking.nameservers = [
+    "100.100.100.100"
+    "1.1.1.1"
+    "8.8.8.8"
+  ];
+
   # Prevent userspace BT stack from starting.
   systemd.services.bluetooth.enable = false;
   systemd.services.hciuart.enable = false;
