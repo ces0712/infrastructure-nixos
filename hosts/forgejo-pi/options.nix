@@ -53,8 +53,8 @@
     };
     kernelPackages = lib.mkOption {
       type = lib.types.str;
-      default = "linuxPackages_6_12";
-      description = "Linux kernel packages variant (e.g., linuxPackages_6_12, linuxPackages_latest)";
+      default = "linuxPackages_6_18";
+      description = "Linux kernel packages variant (e.g., linuxPackages_6_18, linuxPackages_latest)";
     };
   };
 }
