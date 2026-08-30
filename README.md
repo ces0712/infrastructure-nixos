@@ -1,6 +1,7 @@
 # NixOS Infrastructure for Raspberry Pi 4
 
 NixOS configuration for a Raspberry Pi 4 hosting [Forgejo](https://forgejo.org/)
+and a private, single-user [Invidious](https://invidious.io/) instance.
 (self-hosted Git service).
 
 ## Hardware
@@ -183,7 +184,7 @@ The SSD runtime layout expects these labels:
 | `validate` | Verify the SSD runtime profile, mounts, and core services |
 | `backup-validate` | Verify backup timers, secrets, and access to Borgbase/pCloud |
 | `restore-check` | Verify restore prerequisites without changing live data |
-| `deploy` | Deploy the Forgejo runtime configuration |
+| `deploy` | Deploy the runtime configuration |
 | `restore` | Restore Forgejo data from backups |
 | `fmt` | Format Nix files |
 | `fmt-check` | Check formatting without changes |
@@ -200,6 +201,7 @@ Edit files in `hosts/forgejo-pi/`:
 
 - `default.nix` - Core system config
 - `forgejo.nix` - Forgejo service settings
+- `invidious.nix` - Invidious, local PostgreSQL, and Companion settings
 - `backup.nix` - Backup configuration (Restic → Borgbase, Rclone → pCloud)
 - `networking.nix` - Tailscale, SSH, fail2ban
 - `hardware.nix` - Kernel, Raspberry Pi specific settings
@@ -215,9 +217,36 @@ separate repository: `infrastructure-secrets`
 | Service | Port | Description |
 |---------|------|-------------|
 | Forgejo | 3000 | Local Forgejo backend bound to localhost |
+| Invidious | 3001 | Local Invidious backend bound to localhost |
+| Invidious Companion | 8282 | Local video retrieval backend bound to localhost |
 | Forgejo SSH | 2222 | Git SSH access |
 | Tailscale | 41641 | VPN networking |
-| Tailscale Serve | 443 | HTTPS entrypoint on the tailnet hostname |
+| Tailscale Serve | 443 | Forgejo HTTPS entrypoint on the tailnet hostname |
+| Tailscale Serve | 8443 | Invidious HTTPS entrypoint on the tailnet hostname |
+
+Invidious is available only inside the tailnet at
+`https://forgejo-pi.tail8f7f61.ts.net:8443`. It uses nixpkgs' native Invidious
+module, local PostgreSQL over a Unix socket, and the official ARM64 Companion
+binary pinned by hash. Companion remains private; direct reverse-proxy exposure
+is unnecessary for one user.
+
+Companion runs unmodified through nix-ld. Do not apply `patchelf`,
+`autoPatchelfHook`, or stripping to the Deno-compiled binary because those
+operations invalidate its embedded application payload.
+
+The Invidious database and Companion cache are disposable and intentionally
+excluded from backup and restore workflows. The shared Companion key is managed
+as `invidious/companion_key` in the external SOPS repository and must contain
+exactly 16 characters.
+
+Update Companion by changing `invidiousCompanionVersion` and
+`invidiousCompanionHash` together in `hosts/forgejo-pi/options.nix`. Calculate
+the SRI hash of the downloaded ARM64 archive with
+`nix hash file --type sha256 <archive>`.
+
+The shared `tailnetHostname`, `invidiousPort`, `invidiousExternalPort`, and
+`invidiousCompanionPort` defaults are also defined in `options.nix` and feed the
+service, Tailscale Serve, and runtime validation configuration.
 
 ## GitHub Push Mirror
 

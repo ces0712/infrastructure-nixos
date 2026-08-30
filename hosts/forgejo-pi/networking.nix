@@ -81,22 +81,27 @@
   '';
 
   systemd.services.tailscale-serve-forgejo = {
-    description = "Expose Forgejo over Tailscale Serve";
+    description = "Expose Forgejo and Invidious over Tailscale Serve";
     after = [
       "forgejo.service"
+      "invidious.service"
       "tailscaled.service"
       "network-online.target"
     ];
     wants = [
       "forgejo.service"
+      "invidious.service"
       "tailscaled.service"
       "network-online.target"
     ];
     wantedBy = ["multi-user.target"];
+    script = ''
+      ${config.services.tailscale.package}/bin/tailscale serve --bg --https=443 127.0.0.1:3000
+      ${config.services.tailscale.package}/bin/tailscale serve --bg --https=${toString config.forgejo-pi.invidiousExternalPort} ${config.services.invidious.address}:${toString config.services.invidious.port}
+    '';
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;
-      ExecStart = "${config.services.tailscale.package}/bin/tailscale serve --bg 127.0.0.1:3000";
       Restart = "on-failure";
       RestartSec = "10s";
       ExecStop = "${config.services.tailscale.package}/bin/tailscale serve reset";

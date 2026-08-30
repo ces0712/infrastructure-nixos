@@ -21,6 +21,10 @@ else
 fi
 
 profile="$(cat /etc/forgejo-pi-profile)"
+. /etc/invidious-runtime.env
+
+timeout 30s systemctl is-system-running --wait >/dev/null || true
+
 root_source="$(findmnt -n -o SOURCE /)"
 root_disk="$(lsblk -no PKNAME "${root_source}" 2>/dev/null || true)"
 srv_source="$(findmnt -n -o SOURCE /srv 2>/dev/null || true)"
@@ -33,6 +37,9 @@ sshd_state="$($SUDO systemctl is-active sshd || true)"
 tailscaled_state="$($SUDO systemctl is-active tailscaled || true)"
 tailscale_serve_state="$($SUDO systemctl is-active tailscale-serve-forgejo || true)"
 forgejo_state="$($SUDO systemctl is-active forgejo || true)"
+postgresql_state="$($SUDO systemctl is-active postgresql || true)"
+invidious_companion_state="$($SUDO systemctl is-active invidious-companion || true)"
+invidious_state="$($SUDO systemctl is-active invidious || true)"
 
 echo "hostname: $(hostname)"
 echo "profile: ${profile}"
@@ -44,6 +51,9 @@ echo "sshd: ${sshd_state}"
 echo "tailscaled: ${tailscaled_state}"
 echo "tailscale-serve: ${tailscale_serve_state}"
 echo "forgejo: ${forgejo_state}"
+echo "postgresql: ${postgresql_state}"
+echo "invidious-companion: ${invidious_companion_state}"
+echo "invidious: ${invidious_state}"
 echo
 echo "disk layout:"
 lsblk -o NAME,PARTLABEL,LABEL,FSTYPE,MOUNTPOINTS
@@ -54,6 +64,13 @@ test -n "${srv_source}"
 test "${sshd_state}" = "active"
 test "${tailscaled_state}" = "active"
 test "${tailscale_serve_state}" = "active"
+test "${postgresql_state}" = "active"
+test "${invidious_companion_state}" = "active"
+test "${invidious_state}" = "active"
+curl --fail --silent --show-error "http://127.0.0.1:${INVIDIOUS_PORT}/api/v1/stats" >/dev/null
+serve_status="$($SUDO tailscale serve status)"
+printf "%s\n" "${serve_status}" | grep -Fq ":${INVIDIOUS_EXTERNAL_PORT}"
+printf "%s\n" "${serve_status}" | grep -Fq "127.0.0.1:${INVIDIOUS_PORT}"
 if [ "${forgejo_data_present}" = "yes" ]; then
   test "${forgejo_state}" = "active"
 else

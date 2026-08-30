@@ -23,6 +23,12 @@
       group = "root";
     };
 
+    "invidious/companion_key" = {
+      owner = "root";
+      group = "root";
+      mode = "0400";
+    };
+
     "restic/borgbase_repo" = {
       owner = "restic-backup";
       group = "restic-backup";

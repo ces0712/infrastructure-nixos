@@ -4,7 +4,7 @@
   pkgs,
   ...
 }: let
-  forgejoHost = "${config.networking.hostName}.${config.networking.domain}";
+  forgejoHost = config.forgejo-pi.tailnetHostname;
   forgejoPort = 3000;
   forgejoSSHPort = 2222;
 in {

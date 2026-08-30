@@ -30,7 +30,7 @@ help:
   @echo "  just backup-validate -> verifies backup units, secrets, and remote repository access"
   @echo "  just restore-check -> dry-run restore readiness check without changing live data"
   @echo "  just bootstrap    -> from SD boot, resize flashed SSD root and create the data partition"
-  @echo "  just deploy       -> deploy the Forgejo runtime to Pi (remote build)"
+  @echo "  just deploy       -> deploy the runtime to Pi (remote build)"
   @echo "  just restore      -> restores forgejo data from backups"
   @echo ""
   @echo "Recovery / optional:"

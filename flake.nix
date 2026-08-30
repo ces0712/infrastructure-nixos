@@ -57,6 +57,7 @@
         ./hosts/forgejo-pi/sops.nix
         ./hosts/forgejo-pi/secrets.nix
         ./hosts/forgejo-pi/forgejo.nix
+        ./hosts/forgejo-pi/invidious.nix
         ./hosts/forgejo-pi/networking.nix
         ./hosts/forgejo-pi/backup.nix
       ];
