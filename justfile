@@ -31,6 +31,7 @@ help:
   @echo "  just restore-check -> dry-run restore readiness check without changing live data"
   @echo "  just bootstrap    -> from SD boot, resize flashed SSD root and create the data partition"
   @echo "  just deploy       -> deploy the runtime to Pi (remote build)"
+  @echo "  just update       -> update flakes and check Invidious versions"
   @echo "  just restore      -> restores forgejo data from backups"
   @echo ""
   @echo "Recovery / optional:"
@@ -140,6 +141,11 @@ build-dry:
   @echo "Dry-run build (showing changes)..."
   @nix build .#nixosConfigurations.forgejo-pi.config.system.build.toplevel --no-link --dry-run
   @echo "Dry-run complete"
+
+update:
+  nix flake update
+  just ci
+  ./scripts/check-invidious-updates.sh
 
 flush-dns:
   sudo dscacheutil -flushcache && sudo killall -HUP mDNSResponder

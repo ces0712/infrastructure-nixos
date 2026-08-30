@@ -248,6 +248,11 @@ The shared `tailnetHostname`, `invidiousPort`, `invidiousExternalPort`, and
 `invidiousCompanionPort` defaults are also defined in `options.nix` and feed the
 service, Tailscale Serve, and runtime validation configuration.
 
+Run `just update` to update flake inputs, validate the configuration, print the
+resulting nixpkgs Invidious version, and compare the pinned Companion ARM64
+artifact with GitHub. Exit code `2` means Companion needs manual review; the
+command prints the exact version and hash replacements for `options.nix`.
+
 ## GitHub Push Mirror
 
 Forgejo is the canonical source of truth. GitHub is a downstream push mirror.
