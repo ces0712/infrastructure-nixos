@@ -92,7 +92,7 @@
     };
   };
 
-  # TODO: remove this nameservers block and restore --accept-dns in
+  # TODO: remove this nameservers block and --accept-dns=false in
   # hosts/forgejo-pi/networking.nix once the Tailscale Linux MagicDNS
   # regression (introduced in 1.98.1) is fully fixed upstream.
   networking.nameservers = [
