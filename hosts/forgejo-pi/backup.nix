@@ -28,6 +28,7 @@
     passwordFile = config.sops.secrets."restic/borgbase_password".path;
     paths = [
       config.forgejo-pi.dbBackup
+      config.forgejo-pi.tdrProDb
       config.services.forgejo.repositoryRoot
       config.services.forgejo.customDir
       "${config.services.forgejo.stateDir}/data"

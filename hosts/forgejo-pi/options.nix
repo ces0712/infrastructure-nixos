@@ -51,6 +51,11 @@
       type = lib.types.str;
       default = "/srv/backup/forgejo/forgejo-backup.db";
     };
+    tdrProDb = lib.mkOption {
+      type = lib.types.str;
+      default = "/srv/tdr-pro/tdr.sqlite";
+      description = "SQLite database containing the ingested TDR research snapshot.";
+    };
     tailnetHostname = lib.mkOption {
       type = lib.types.str;
       default = "forgejo-pi.tail8f7f61.ts.net";
