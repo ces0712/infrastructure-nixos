@@ -78,12 +78,12 @@
     };
     invidiousCompanionVersion = lib.mkOption {
       type = lib.types.str;
-      default = "2026-10-18";
+      default = "2026-11-07";
       description = "Version label for the pinned Invidious Companion release asset.";
     };
     invidiousCompanionHash = lib.mkOption {
       type = lib.types.str;
-      default = "sha256-xTKB83PexbKA8d79ch8/oA6Ydl5JA6OM+suEeFummtU=";
+      default = "sha256-elO6XYniUhxGI8URMmd/W6exk+0xFO6YfsgDV6D1MeI=";
       description = "SHA-256 hash of the pinned Invidious Companion ARM64 release asset.";
     };
     kernelPackages = lib.mkOption {
