@@ -230,7 +230,13 @@ module, local PostgreSQL over a Unix socket, and the official ARM64 Companion
 binary pinned by hash. Companion remains private; direct reverse-proxy exposure
 is unnecessary for one user.
 
-Companion runs unmodified through nix-ld. Do not apply `patchelf`,
+Companion runs unmodified through nix-ld. Systemd bind-mounts its persistent
+cache at `/var/tmp/youtubei.js` inside the service, the path the prebuilt binary
+can write. The cache survives service restarts and reboots.
+
+Invidious defaults to proxied DASH (`local=true`) starting at 240p to avoid
+startup stalls while keeping the quality selector available. Saved preferences
+and watch URL parameters can override these defaults. Do not apply `patchelf`,
 `autoPatchelfHook`, or stripping to the Deno-compiled binary because those
 operations invalidate its embedded application payload.
 

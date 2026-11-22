@@ -91,6 +91,13 @@ in {
       registration_enabled = false;
       login_enabled = false;
       popular_enabled = false;
+
+      # Start DASH at 240p to avoid startup stalls while keeping the quality selector.
+      default_user_preferences = {
+        quality = "dash";
+        quality_dash = "240p";
+        local = true;
+      };
       statistics_enabled = false;
       invidious_companion = [
         {private_url = "http://127.0.0.1:${invidiousCompanionPort}/companion";}
@@ -107,6 +114,12 @@ in {
     requires = ["invidious-companion.service"];
   };
 
+  users.users.invidious-companion = {
+    isSystemUser = true;
+    group = "invidious-companion";
+  };
+  users.groups.invidious-companion = {};
+
   systemd.services.invidious-companion = {
     description = "Invidious Companion";
     wantedBy = ["multi-user.target"];
@@ -118,7 +131,8 @@ in {
       HOST = "127.0.0.1";
       PORT = invidiousCompanionPort;
       SERVER_BASE_PATH = "/companion";
-      CACHE_DIRECTORY = "/var/cache/invidious-companion/youtubei.js";
+      # Companion appends /youtubei.js; the release binary only permits writes there.
+      CACHE_DIRECTORY = "/var/tmp";
       NIX_LD = config.environment.variables.NIX_LD;
       NIX_LD_LIBRARY_PATH = config.environment.variables.NIX_LD_LIBRARY_PATH;
     };
@@ -130,9 +144,14 @@ in {
       Restart = "on-failure";
       RestartSec = "5s";
 
-      DynamicUser = true;
-      CacheDirectory = "invidious-companion";
+      # DynamicUser's id-mapped cache directory loses its mapping at this
+      # bind mount. Use a dedicated static user so the cache stays writable.
+      User = "invidious-companion";
+      Group = "invidious-companion";
+      # Use a fresh path instead of inheriting the old DynamicUser directory.
+      CacheDirectory = "invidious-companion-kv";
       CacheDirectoryMode = "0700";
+      BindPaths = ["/var/cache/invidious-companion-kv:/var/tmp/youtubei.js"];
       UMask = "0077";
 
       NoNewPrivileges = true;
